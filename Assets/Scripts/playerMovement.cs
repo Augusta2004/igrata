@@ -37,9 +37,9 @@ public class playerMovement : MonoBehaviour {
 			RaycastHit hit;
 			if (Physics.Raycast (ray, out hit, 100))
 			{
-				Debug.Log(hit.transform.gameObject.name);
+				//Debug.Log(hit.transform.gameObject.name);
 			}
-			Debug.Log(Physics.Raycast (ray, out hit, 10000));
+			//Debug.Log(Physics.Raycast (ray, out hit, 10000));
         }
         
 

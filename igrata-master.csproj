@@ -90,6 +90,7 @@
     <Compile Include="Assets\MiniGames\Mirko\Scripts\GroundController.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\PlayerController.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\RandomColor.cs" />
+    <Compile Include="Assets\Scripts\ChangePage.cs" />
     <Compile Include="Assets\Scripts\ChangeRoom.cs" />
     <Compile Include="Assets\Scripts\ChatText.cs" />
     <Compile Include="Assets\Scripts\ClickDance.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="Assets\Scripts\MinigameOne.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\PlayerCard.cs" />
+    <Compile Include="Assets\Scripts\ShowNewsPaper.cs" />
     <Compile Include="Assets\Scripts\SocketIO\JSONObject\JSONObject.cs" />
     <Compile Include="Assets\Scripts\SocketIO\JSONObject\JSONTemplates.cs" />
     <Compile Include="Assets\Scripts\SocketIO\JSONObject\VectorTemplates.cs" />
