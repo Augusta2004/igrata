@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Room1.unity
+- path: Assets/MiniGames/BunnyRun/scenes/BunnyRunGame.unity
   isLoaded: 1
   isActive: 1

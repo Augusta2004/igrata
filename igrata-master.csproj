@@ -85,6 +85,7 @@
     <Compile Include="Assets\MiniGames\BunnyRun\scripts\PrefabSpawner.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\Bot.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\BotGenerator.cs" />
+    <Compile Include="Assets\MiniGames\Mirko\Scripts\Close.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\GameAudio.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\GameUI.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\GroundController.cs" />
