@@ -27,5 +27,6 @@ public class ClickEmoji : MonoBehaviour
         chatText.text = "";
         ChatInput.GetComponent<ChatText>().emojiShowTime = Time.time;
         this.transform.parent.gameObject.SetActive(false);
+        Debug.Log(emojiSprite.GetComponent<SpriteRenderer>().sprite);
     }
 }
