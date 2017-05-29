@@ -26,41 +26,41 @@ public class playerMovement : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(0))
         {
-			
-
             _player = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
             _move = true;
 
 
-			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			RaycastHit hit;
-			if (Physics.Raycast (ray, out hit, 100))
-			{
-				//Debug.Log(hit.transform.gameObject.name);
-			}
-			//Debug.Log(Physics.Raycast (ray, out hit, 10000));
+            //check what type of object is clicked
+             RaycastHit2D hit = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(Input.mousePosition), Vector2.zero);
+             if (hit.collider != null)
+             {
+                 string name = hit.collider.transform.gameObject.name;
+                 if (name != "Collision" && name != "door")
+                 {
+                     Debug.Log("do not move");
+                     _move = false;
+                 }
+             }
+             
         }
-        
-
-
-        if (_player != Vector2.zero && (_player - position).magnitude >= .06)
-        {
-            if (_move == true)
+            if (_player != Vector2.zero && (_player - position).magnitude >= .06)
             {
-                //rbody.isKinematic = false;
-
-                direction = (_player - position).normalized;
-                rbody.MovePosition(rbody.position + _speed * direction * Time.deltaTime);
-                anim.SetBool("isWalking", true);
-                anim.SetFloat("input_x", direction.x);
-                anim.SetFloat("input_y", direction.y);
+                if (_move == true)
+                {
+                    //rbody.isKinematic = false;
+                    
+                     direction = (_player - position).normalized;
+                     rbody.MovePosition(rbody.position + _speed * direction * Time.deltaTime);
+                     anim.SetBool("isWalking", true);
+                     anim.SetFloat("input_x", direction.x);
+                     anim.SetFloat("input_y", direction.y);
+                }
             }
-        }
-        else
-        {
-            anim.SetBool("isWalking", false);
-        }
+            else
+            {
+                anim.SetBool("isWalking", false);
+            }
     }
 
     void OnCollisionEnter2D(Collision2D coll)
