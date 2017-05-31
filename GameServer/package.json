@@ -1,0 +1,14 @@
+{
+  "name": "gameserver",
+  "version": "1.0.0",
+  "description": "The Game Server",
+  "main": "app.js",
+  "scripts": {},
+  "author": "Tsvetomir 'Waffoss' Tsvetkov",
+  "license": "ISC",
+  "repository": "",
+  "dependencies": {
+    "express": "^4.15.2",
+    "socket.io": "^1.7.4"
+  }
+}

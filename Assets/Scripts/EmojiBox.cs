@@ -11,14 +11,10 @@ public class EmojiBox : MonoBehaviour {
     void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
 
     void OnMouseDown()
     {
+        Debug.Log("emot");
         if (emojiBox.activeSelf)
         {
             emojiBox.SetActive(false);
