@@ -7,34 +7,27 @@ public class ChatText : MonoBehaviour
 {
     private float showTime;
     public float emojiShowTime;
-    public Text chatMessage;
-    public GameObject emojiSprite;
-
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Time.time - showTime > 4)
-        {
-            chatMessage.text = "";
-        }
-        
-        //hide emoji
-        if (Time.time - emojiShowTime > 4)
-        {
-            emojiSprite.GetComponent<SpriteRenderer>().sprite = null;
-        }
-    }
-
+    
     public void ShowText()
     {
-        chatMessage.text = this.GetComponent<InputField>().text;
-        emojiSprite.GetComponent<SpriteRenderer>().sprite = null;
+        StartCoroutine(SendText());
+    }
+
+    IEnumerator SendText()
+    {        
+        //chatMessage.text = this.GetComponent<InputField>().text;
+        //emojiSprite.GetComponent<SpriteRenderer>().sprite = null;
+
+        NetworkManager.instance.GetComponent<NetworkManager>().PlayerChat(this.GetComponent<InputField>().text.ToString(), "");
+        
+        this.GetComponent<InputField>().text = "";
         showTime = Time.time;
+
+        yield return new WaitForSeconds(4.5f);
+        
+        if (Time.time - showTime > 4)
+        {
+            NetworkManager.instance.GetComponent<NetworkManager>().PlayerChat("", "");
+        }
     }
 }

@@ -37,6 +37,7 @@ public class NetworkManager : MonoBehaviour
         socket.On("play", OnPlay);
         socket.On("player move", OnPlayerMove);
         socket.On("player stop animation", OnPlayerStopAnimation);
+        socket.On("player chat", OnPlayerChat);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
     }
 
@@ -76,6 +77,29 @@ public class NetworkManager : MonoBehaviour
     public void StopAnimation()
     {
         socket.Emit("player stop animation");
+    }
+
+    public void PlayerChat(String message, String emojiPath)
+    {
+        string data = JsonUtility.ToJson(new ChatJSON(message, emojiPath));
+        
+        socket.Emit("player chat", new JSONObject(data));
+    }
+
+    public void SendEmoji(String emojiSprite)
+    {
+        StartCoroutine(SendEmojiToServer(emojiSprite));
+    }
+
+    IEnumerator SendEmojiToServer(String emojiPath)
+    {
+        GameObject.Find("EmojiBox").SetActive(false);
+        PlayerChat("", emojiPath);
+
+        yield return new WaitForSeconds(3.5f);
+        //TODO НЕ ИЗТРИВАЙ СЪОБЩЕНИЕТО, А САМО ЕМОЖИТО, КАЛТАК
+
+        PlayerChat("", "");
     }
 
     #endregion
@@ -155,6 +179,18 @@ public class NetworkManager : MonoBehaviour
         p.GetComponent<Animator>().SetBool("isWalking", false);
     }
 
+    void OnPlayerChat(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        ChatJSON chatJSON = ChatJSON.CreateFromJSON(data);
+        
+        GameObject p = GameObject.Find(chatJSON.player) as GameObject;
+       
+        p.transform.Find("Canvas").transform.Find("ChatText").GetComponent<Text>().text = chatJSON.message;
+        
+        p.transform.Find("EmojiSprite").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(chatJSON.emoji);
+    }
+
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
     {
         print("user disconnected");
@@ -182,6 +218,25 @@ public class NetworkManager : MonoBehaviour
                 playerSpawnPoints.Add(pointJSON);
             }
 
+        }
+    }
+
+    [Serializable]
+    public class ChatJSON
+    {
+        public string player;
+        public string message;
+        public string emoji;
+
+        public ChatJSON(string _message, string _emoji)
+        {
+            message = _message;
+            emoji = _emoji;
+        }
+
+        public static ChatJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<ChatJSON>(data);
         }
     }
 

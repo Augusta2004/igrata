@@ -1,9 +1,75 @@
-const express = require('express');
+let mongoose = require('mongoose');
+
+let connection = 'mongodb://localhost:27017/game';
+
+mongoose.Promise = global.Promise;
+let Schema = mongoose.Schema;
+
+
+/////MODELS///////////
+
+
+let userSchema = new Schema({
+    user_id: Number,
+    username: String,
+    password: String,
+    mail: String,
+    date_reg: Number
+});
+
+let User = mongoose.model('User', userSchema);
+
+let Character = mongoose.model('Character', {
+    id: Number,
+    coins: Number
+});
+
+let Item = mongoose.model('Item', {
+    item_id: Number,
+    name: String,
+    picture: String,
+    price: Number,
+    is_premium: Boolean,
+    type: String
+});
+
+let Character_item = mongoose.model('Character_item', {
+    character_id: Number,
+    item_id: Number,
+    picture: String,
+    is_on: Boolean
+});
+
+let Counter = mongoose.model('Counter', {
+    user_id: Number,
+    item_id: Number
+});
+
+//////MODELS///////////
+
+
+//const models = require('./models.js');
+
+mongoose
+	.connect(connection)
+	.then(() => {
+		console.log('Mongoose is running');
+
+		/*new Counter({
+			 user_id: 0,
+			 item_id: 0
+		}).save()*/
+
+	});
+
+const express = require('express'), LocalStrategy = require('passport').Strategy;
 
 let app = express();
 
+
 const server = require('http').createServer(app);
 const io = require('socket.io').listen(server);
+var async = require('async');
 
 const port = 4567;
 
@@ -62,7 +128,7 @@ io.on('connection', socket => {
 		socket.broadcast.emit('other player connected', currentPlayer);
 	});
 
-	socket.on('player move', (data) =>{
+	socket.on('player move', (data) => {
 		//console.log('recv: move: ' + JSON.stringify(data));
 		currentPlayer.position = data.position;
 		currentPlayer.animation = data.animation;
@@ -71,6 +137,65 @@ io.on('connection', socket => {
 
 	socket.on('player stop animation', () =>{
         socket.broadcast.emit('player stop animation', currentPlayer);
+	});
+
+	socket.on('player chat', (data) => {
+		data.player = currentPlayer.name;
+
+		socket.emit('player chat', data);
+		socket.broadcast.emit('player chat', data);
+	});
+
+	socket.on('user register', (data) => {
+
+		let errors = new Array();
+
+        async.parallel([
+            function validateEmail(callback) {
+                User.findOne({mail: data.mail}, function(err, existingEmail) {
+                    if(existingEmail) {
+                        errors.push('Email already exists');
+                        //callback('Email already exists');
+                    }
+                })
+            },
+            function validateUsername(callback) {
+                User.findOne({username: data.username}, function(err, existingUsername) {
+                    if(existingUsername) {
+                        errors.push('Username already exists');
+                        //callback('Username already exists');
+                    }
+
+                    callback(errors)
+                })
+            }
+        ], function(err) {
+
+            if(err.length > 0) {
+                console.log(err);
+                //return next(err);
+            } else {
+                console.log('success');
+
+                let lastUserId = Counter.findOne();
+                lastUserId.select('user_id');
+
+                lastUserId.exec((err, counter) =>{
+                	console.log(counter.user_id);
+
+                    new User({
+                        user_id: counter.user_id+1,
+                        username: data.username,
+                        password: data.password,
+                        mail: data.mail,
+                        date_reg: 666
+                    }).save()
+
+                    counter.user_id++;
+                    counter.save();
+				})
+            }
+        });
 	});
 
 	socket.on('disconnect', () => {
@@ -83,59 +208,6 @@ io.on('connection', socket => {
 			}
 		}
 	});
-
-	/*
-	let currentUser;
-
-    socket.on("USER_CONNECT", () => {
-        console.log("User connectedddd");
-
-        for (let i = 0; i < clients.length; i++) {
-            socket.emit("USER_CONNECTED", { name: clients[i], position: clients[i].position });
-            console.log("User: " + clients[i].name + " is connected!");
-        }
-
-    });
-
-
-	socket.on("test", () =>{
-		console.log("samo az vurvq");
-	});
-
-    socket.on("PLAY", data => {
-        console.log(data);
-
-        currentUser = {
-            name: data.name,
-            position: data.position
-        }
-		
-        clients.push(currentUser);
-        socket.emit("PLAY", currentUser);
-		socket.emit("PLAYER_INFO", currentUser);
-        socket.broadcast.emit("USER_CONNECTED", currentUser);
-    });
-
-
-    socket.on("MOVE", data => {
-        currentUser.position = data.position;		
-        socket.emit("MOVE", currentUser);
-        socket.broadcast.emit("MOVE", currentUser);
-        console.log("User: " + currentUser.name + " move to " + currentUser.position);
-    });
-
-    socket.on("disconnect", () => {
-        socket.broadcast.emit("USER_DISCONNECTED", currentUser);
-        for (let i = 0; i < clients.length; i++) {
-            if (clients[i].name === currentUser.name) {
-                console.log("User: " + clients[i].name + " disconnected!");
-                clients.splice(i, 1);
-            }
-        }
-    });
-
-	*/
-
 });
 
 server.listen(app.get('port'), () => {
