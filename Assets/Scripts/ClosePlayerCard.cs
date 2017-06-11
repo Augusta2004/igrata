@@ -4,17 +4,13 @@ using UnityEngine;
 
 public class ClosePlayerCard : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-    }
-	
-	// Update is called once per frame
-	void Update () {
-
-    }
-
     void OnMouseDown()
     {
-        this.transform.parent.gameObject.SetActive(false);
+        //this.transform.parent.gameObject.SetActive(false);
+        GameObject playerCard = GameObject.Find("PlayerCard") as GameObject;
+        playerCard.transform.GetChild(0).gameObject.SetActive(false);
+
+        GameObject playerCardOC = GameObject.Find("PlayerCardOC") as GameObject;
+        playerCardOC.transform.GetChild(0).gameObject.SetActive(false);
     }
 }

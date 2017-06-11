@@ -1,0 +1,290 @@
+const mongoose = require('mongoose');
+const User = mongoose.model('User');
+const Character = mongoose.model('Character');
+const Item = mongoose.model('Item');
+const Character_item = mongoose.model('Character_item');
+const Counter = mongoose.model('Counter');
+
+module.exports = (server) =>{
+    const io = require('socket.io').listen(server);
+    let async = require('async');
+    let playerSpawnPoints = [];
+    let clients = [];
+
+    let username = "";
+    let user_id = 0;
+
+    io.on('connection', socket => {
+
+        let currentPlayer = {};
+        currentPlayer.name = "unknown";
+
+        socket.on('palyer connect', () => {
+            console.log(currentPlayer.name + 'recv: player connected');
+
+            for (let i = 0; i < clients.length; i++) {
+                let playerConnected = {
+                    name: clients[i].name,
+                    position: clients[i].position
+                };
+
+                //in your current game we need to tell you about the other players
+                socket.emit('other player connected', playerConnected);
+                console.log(currentPlayer.name + ' emit: other player connected:' + JSON.stringify(playerConnected));
+            }
+        });
+
+        socket.on('play', (data) => {
+            console.log(currentPlayer.name + 'recv play: ' + JSON.stringify(data));
+
+            if (clients.length === 0) {
+                playerSpawnPoints = [];
+                data.playerSpawnPoints.forEach((_playerSpawnPoints) => {
+                    let playerSpawnPoint = {
+                        position: _playerSpawnPoints.position
+                    };
+                    playerSpawnPoints.push(playerSpawnPoint);
+                });
+            }
+
+            let randomSpawnPoints = playerSpawnPoints[Math.floor(Math.random() * playerSpawnPoints.length)];
+            currentPlayer = {
+                name: data.name,
+                position: randomSpawnPoints.position,
+                animation: [0, -1]
+            };
+            clients.push(currentPlayer);
+            console.log(currentPlayer.name + ' emit: play:' + JSON.stringify(currentPlayer));
+
+            socket.emit('play', currentPlayer);
+            socket.broadcast.emit('other player connected', currentPlayer);
+        });
+
+        socket.on('player move', (data) => {
+            //console.log('recv: move: ' + JSON.stringify(data));
+            currentPlayer.position = data.position;
+            currentPlayer.animation = data.animation;
+            socket.broadcast.emit('player move', currentPlayer);
+        });
+
+        socket.on('player stop animation', () => {
+            socket.broadcast.emit('player stop animation', currentPlayer);
+        });
+
+        socket.on('player chat', (data) => {
+            data.player = currentPlayer.name;
+
+            socket.emit('player chat', data);
+            socket.broadcast.emit('player chat', data);
+        });
+
+        socket.on('user register', (data) => {
+
+            let errors = new Array();
+
+
+            let checkMail = function () {
+
+                User.findOne({mail: data.mail}, function (err, existingEmail) {
+                    console.log("1");
+
+                    if (existingEmail) {
+                        errors.push('Email already exists');
+                        //callback('Email already exists');
+                    }
+                })
+
+            };
+
+
+            let checkUsername = function () {
+                return new Promise(() => {
+                    User.findOne({username: data.username}, function (err, existingUsername) {
+                        console.log("2");
+                        if (existingUsername) {
+                            errors.push('Username already exists');
+                            //callback('Username already exists');
+                        }
+                    })
+                })
+            }
+
+            let registerUser = function () {
+                console.log("3")
+                return new Promise(() => {
+
+                    if (errors.length > 0) {
+                        console.log(errors);
+
+                        let errObj = {
+                            errors: errors
+                        };
+
+                        socket.emit('user register', errObj);
+                    } else {
+                        console.log('success');
+
+                        let lastUserId = Counter.findOne();
+                        lastUserId.select('user_id');
+
+                        lastUserId.exec((err, counter) => {
+                            console.log(counter.user_id);
+
+                            new User({
+                                user_id: counter.user_id + 1,
+                                username: data.username,
+                                password: data.password,
+                                mail: data.mail,
+                                date_reg: 666
+                            }).save()
+
+                            new Character({
+                                user_id: counter.user_id + 1,
+                                coins: 666
+                            }).save()
+
+                            counter.user_id++;
+                            counter.save().then(() => {
+                                let errObj = {
+                                    errors: errors
+                                };
+
+                                socket.emit('user register', errObj);
+                            });
+                        })
+                    }
+                })
+            };
+
+            function asyncFunction(item, cb) {
+                setTimeout(() => {
+                    item();
+                    //console.log('done with', cb);
+                    cb();
+                }, 15);
+            }
+
+            let requests = [checkMail, checkUsername, registerUser].reduce((promiseChain, item) => {
+                return promiseChain.then(() => new Promise((resolve) => {
+                    asyncFunction(item, resolve);
+                }));
+            }, Promise.resolve());
+
+        });
+
+        socket.on('user login', (data) => {
+
+            let errors = new Array();
+
+            User.findOne({username: data.username, password: data.password}, function (err, existingUser) {
+
+
+                if (!existingUser) {
+                    errors.push('Username or password is wrong!');
+                    console.log(errors)
+                }
+                else {
+                    username = existingUser.username;
+                    user_id = existingUser.user_id;
+                    console.log("Successfull login");
+                }
+
+                let errObj = {
+                    errors: errors
+                };
+
+                socket.emit('user login', errObj);
+            })
+        });
+
+        socket.on('collect item', (data) => {
+
+            Character_item.findOne({item_id: data, user_id: user_id}, function (err, hasItem) {
+                if (hasItem) {
+                    console.log("has item");
+                    let itemObj = {
+                        id: -1,
+                        name: "You already have this item"
+                    };
+
+                    socket.emit('collect item', itemObj);
+                }
+                else {
+                    Item.findOne({item_id: data}, function (err, itemExists) {
+                        if (itemExists) {
+                            new Character_item({
+                                user_id: user_id,
+                                item_id: data,
+                                name: itemExists.name,
+                                picture: itemExists.picture,
+                                type: itemExists.type,
+                                is_on: false
+                            }).save().then(() => {
+                                let itemObj = {
+                                    id: data,
+                                    name: itemExists.name
+                                };
+
+                                socket.emit('collect item', itemObj);
+                            })
+                        }
+                        else {
+                            let itemObj = {
+                                id: -1,
+                                name: "Item does not exist"
+                            };
+
+                            socket.emit('collect item', itemObj);
+                            console.log("Item does not exist");
+                        }
+                    });
+                }
+            });
+
+        });
+
+        socket.on('get player items', () => {
+            Character_item.find({user_id: user_id}, function (err, items) {
+                console.log({items});
+                socket.emit('get player items', {items});
+            })
+        });
+
+        socket.on('change item', (data) => {
+            console.log(data);
+            Character_item.findOne({user_id: user_id, item_id: data.id}, function (err, item) {
+                var conditions = {user_id: user_id, type: data.type}
+                    , update = {$set: {is_on: false}}
+                    , options = {multi: true};
+
+                Character_item.update(conditions, update, options, callback);
+
+                function callback(err, numAffected) {
+                    console.log("gg wp");
+
+                    item.is_on = true;
+                    item.save();
+                    console.log(item);
+                };
+            });
+        });
+
+        socket.on('get on items', () => {
+            Character_item.find({user_id: user_id, is_on: true}, function (err, items) {
+                console.log({items});
+                socket.emit('get on items', {items});
+            })
+        });
+
+        socket.on('disconnect', () => {
+            console.log(currentPlayer.name + "recv: disconnected");
+            socket.broadcast.emit('other player disconnected', currentPlayer);
+
+            for (let i = 0; i < clients.length; i++) {
+                if (clients[i].name === currentPlayer.name) {
+                    clients.splice(i, 1);
+                }
+            }
+        });
+    });
+};

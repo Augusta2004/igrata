@@ -4,6 +4,7 @@ using UnityEngine;
 using SocketIO;
 using UnityEngine.UI;
 using System;
+using System.Globalization;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -13,6 +14,13 @@ public class NetworkManager : MonoBehaviour
     public SocketIOComponent socket;
     private string playerNameInput;  //Later should take data from login form  //DB
     public GameObject player;
+
+    public GameObject playerCard;
+    public GameObject playerCardOC; //other players' cards
+
+    public GameObject item;
+
+    private bool isServerAvailable = true;
 
     private void Awake()
     {
@@ -38,6 +46,9 @@ public class NetworkManager : MonoBehaviour
         socket.On("player move", OnPlayerMove);
         socket.On("player stop animation", OnPlayerStopAnimation);
         socket.On("player chat", OnPlayerChat);
+        socket.On("collect item", OnCollectItem);
+        socket.On("get player items", OnGetPlayerItems);
+        socket.On("get on items", OnGetOnItems);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
     }
 
@@ -102,6 +113,28 @@ public class NetworkManager : MonoBehaviour
         PlayerChat("", "");
     }
 
+    public void CollectItem(int id)
+    {
+        if (isServerAvailable)
+        {
+            socket.Emit("collect item", new JSONObject(id));
+            Debug.Log("You've tried to pick item with id: " + id);
+
+            isServerAvailable = false;
+        }
+    }
+
+    public void GetPlayerItems()
+    {
+        socket.Emit("get player items");
+    }
+
+    public void ChangeItem(int id, string type)
+    {
+        string data = JsonUtility.ToJson(new ChangeItemJSON(id, type));
+        socket.Emit("change item", new JSONObject(data));
+    }
+
     #endregion
 
     #region Listening
@@ -145,6 +178,11 @@ public class NetworkManager : MonoBehaviour
         playerName.text = currentUserJSON.name;
         pc.isLocalPlayer = true;
         p.name = currentUserJSON.name;
+
+        socket.Emit("get on items");
+
+        //GameObject playerCardInstance = Instantiate(playerCard, position, Quaternion.identity) as GameObject;
+       // playerCardInstance.name = currentUserJSON.name + "PC";
     }
 
     void OnPlayerMove(SocketIOEvent socketIOEvent)
@@ -189,6 +227,69 @@ public class NetworkManager : MonoBehaviour
         p.transform.Find("Canvas").transform.Find("ChatText").GetComponent<Text>().text = chatJSON.message;
         
         p.transform.Find("EmojiSprite").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(chatJSON.emoji);
+    }
+
+    void OnCollectItem(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        ItemJSON itemJSON = ItemJSON.CreateFromJSON(data);
+        
+        isServerAvailable = true;
+    }
+
+    void OnGetPlayerItems(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
+        {
+            PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(socketIOEvent.data["items"][i].ToString());
+
+            GameObject itemObject = Instantiate(item, new Vector2(0, 0), Quaternion.identity) as GameObject;
+            itemObject.name = "Item " + itemsJson.name;
+            itemObject.transform.parent = GameObject.Find("PlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder");
+
+            itemObject.GetComponent<ClickItem>().item_id = itemsJson.item_id;
+            itemObject.GetComponent<ClickItem>().item_on = itemsJson.is_on;
+            itemObject.GetComponent<ClickItem>().type = itemsJson.type;
+            itemObject.GetComponent<ClickItem>().path = itemsJson.picture;
+
+            string path = "Sprites/Items/" + itemsJson.picture;
+            itemObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(path);
+
+            itemObject.AddComponent<BoxCollider2D>();
+            itemObject.GetComponent<BoxCollider2D>().isTrigger = true;
+
+            GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
+
+            float offset0 = i % 2;
+            float x = itemsHolder.transform.position.x - itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x / 2 + (1 + 1.25f * offset0) * itemObject.GetComponent<SpriteRenderer>().bounds.size.x;
+
+            float offset = Mathf.Ceil((i + 1) / 3) + 1;
+            float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - itemObject.GetComponent<SpriteRenderer>().bounds.size.y * offset;
+            itemObject.transform.position = new Vector2(x, y);
+            itemObject.GetComponent<SpriteRenderer>().sortingOrder = 201;
+        }
+    }
+
+    void OnGetOnItems(SocketIOEvent socketIOEvent)
+    {
+        Debug.Log("get on items!!!");
+        string data = socketIOEvent.data.ToString();
+
+        for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
+        {
+
+            PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(socketIOEvent.data["items"][i].ToString());
+
+            string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
+         
+            GameObject.Find("PlayerCard")
+                .transform.Find("PlayerCardHolder")
+                .transform.Find("Player Clothes")
+                .transform.Find(type1)
+                .GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
+        }
     }
 
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
@@ -280,6 +381,49 @@ public class NetworkManager : MonoBehaviour
         }
     }
     //TEST FOR ANIMATION
+
+    [Serializable]
+    public class ChangeItemJSON
+    {
+        public int id;
+        public String type;
+
+        public ChangeItemJSON(int _id, String _type)
+        {
+            id = _id;
+            type = _type;
+        }
+    }
+
+    [Serializable]
+    public class ItemJSON
+    {
+        public string name;
+        public int id;
+
+        public static ItemJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<ItemJSON>(data);
+        }
+    }
+
+
+    [Serializable]
+    public class PlayerItemsJSON
+    {
+        public int _id;
+        public int user_id;
+        public int item_id;
+        public string name;
+        public string picture;
+        public string type;
+        public bool is_on; 
+
+        public static PlayerItemsJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<PlayerItemsJSON>(data);
+        }
+    }
 
     [Serializable]
     public class UserJSON

@@ -1,20 +1,23 @@
 {
   "name": "gameserver",
-  "version": "1.0.0",
-  "description": "The Game Server",
-  "main": "app.js",
-  "scripts": {},
-  "author": "Tsvetomir 'Waffoss' Tsvetkov",
-  "license": "ISC",
-  "repository": "",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ./bin/www"
+  },
   "dependencies": {
     "async": "^2.4.1",
-    "express": "^4.15.2",
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "express": "~4.15.2",
     "express-session": "^1.15.3",
-    "mongodb": "2.2.27",
-    "mongoose": "4.10.4",
-    "passport": "~0.2.0",
-    "passport-local": "~1.0.0",
-    "socket.io": "^1.7.4"
+    "hbs": "~4.0.1",
+    "mongoose": "^4.10.5",
+    "morgan": "~1.8.1",
+    "passport": "^0.3.2",
+    "passport-local": "^1.0.0",
+    "serve-favicon": "~2.4.2",
+    "socket.io": "^2.0.2"
   }
 }
