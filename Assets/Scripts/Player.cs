@@ -22,7 +22,19 @@ public class Player : MonoBehaviour
             playerCard.transform.GetChild(0).gameObject.SetActive(true);
             playerCardOC.transform.GetChild(0).gameObject.SetActive(false);
             Debug.Log(playerCard.transform.GetChild(0));
-            //TODO open our player card
+
+
+            GameObject itemsHolder = GameObject.Find("PlayerCard")
+                .transform.Find("DragPlayerCard")
+                .transform.Find("PlayerCardHolder")
+                .transform.Find("ItemsHolder").gameObject;
+
+            foreach (Transform child in itemsHolder.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+
+            NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItems();
         }
         else
         {

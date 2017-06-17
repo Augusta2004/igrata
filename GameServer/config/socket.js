@@ -11,19 +11,24 @@ module.exports = (server) =>{
     let playerSpawnPoints = [];
     let clients = [];
 
-    let username = "";
-    let user_id = 0;
+    //let username = "";
+    //let user_id = 0;
+    //let coins = 0;
 
     io.on('connection', socket => {
+
+        console.log('a user connected');
 
         let currentPlayer = {};
         currentPlayer.name = "unknown";
 
-        socket.on('palyer connect', () => {
+        socket.on('player connect', () => {
+
             console.log(currentPlayer.name + 'recv: player connected');
 
             for (let i = 0; i < clients.length; i++) {
                 let playerConnected = {
+                    id: clients[i].id,
                     name: clients[i].name,
                     position: clients[i].position
                 };
@@ -48,11 +53,9 @@ module.exports = (server) =>{
             }
 
             let randomSpawnPoints = playerSpawnPoints[Math.floor(Math.random() * playerSpawnPoints.length)];
-            currentPlayer = {
-                name: data.name,
-                position: randomSpawnPoints.position,
-                animation: [0, -1]
-            };
+            currentPlayer.position = randomSpawnPoints.position;
+            currentPlayer.animation = [0, -1];
+
             clients.push(currentPlayer);
             console.log(currentPlayer.name + ' emit: play:' + JSON.stringify(currentPlayer));
 
@@ -64,11 +67,14 @@ module.exports = (server) =>{
             //console.log('recv: move: ' + JSON.stringify(data));
             currentPlayer.position = data.position;
             currentPlayer.animation = data.animation;
+            currentPlayer.numAnimation = data.numAnimation;
             socket.broadcast.emit('player move', currentPlayer);
         });
 
-        socket.on('player stop animation', () => {
+        socket.on('player stop animation', (data) => {
+            currentPlayer.numAnimation = data;
             socket.broadcast.emit('player stop animation', currentPlayer);
+            //console.log(data);
         });
 
         socket.on('player chat', (data) => {
@@ -107,10 +113,10 @@ module.exports = (server) =>{
                         }
                     })
                 })
-            }
+            };
 
             let registerUser = function () {
-                console.log("3")
+                console.log("3");
                 return new Promise(() => {
 
                     if (errors.length > 0) {
@@ -136,12 +142,12 @@ module.exports = (server) =>{
                                 password: data.password,
                                 mail: data.mail,
                                 date_reg: 666
-                            }).save()
+                            }).save();
 
                             new Character({
                                 user_id: counter.user_id + 1,
                                 coins: 666
-                            }).save()
+                            }).save();
 
                             counter.user_id++;
                             counter.save().then(() => {
@@ -184,8 +190,19 @@ module.exports = (server) =>{
                     console.log(errors)
                 }
                 else {
-                    username = existingUser.username;
-                    user_id = existingUser.user_id;
+
+
+                    Character.findOne({user_id: existingUser.user_id}, function(err, character){
+                        //username = existingUser.username;
+                        //user_id = existingUser.user_id;
+                        //coins = character.coins;
+                        currentPlayer.name = existingUser.username;
+                        currentPlayer.id = existingUser.user_id;
+                        currentPlayer.coins = character.coins;
+
+                        console.log(currentPlayer);
+                    });
+
                     console.log("Successfull login");
                 }
 
@@ -199,7 +216,7 @@ module.exports = (server) =>{
 
         socket.on('collect item', (data) => {
 
-            Character_item.findOne({item_id: data, user_id: user_id}, function (err, hasItem) {
+            Character_item.findOne({item_id: data, user_id: currentPlayer.id}, function (err, hasItem) {
                 if (hasItem) {
                     console.log("has item");
                     let itemObj = {
@@ -213,7 +230,8 @@ module.exports = (server) =>{
                     Item.findOne({item_id: data}, function (err, itemExists) {
                         if (itemExists) {
                             new Character_item({
-                                user_id: user_id,
+                                user_id: currentPlayer.id,
+                                username: currentPlayer.name,
                                 item_id: data,
                                 name: itemExists.name,
                                 picture: itemExists.picture,
@@ -244,16 +262,17 @@ module.exports = (server) =>{
         });
 
         socket.on('get player items', () => {
-            Character_item.find({user_id: user_id}, function (err, items) {
-                console.log({items});
+            Character_item.find({user_id: currentPlayer.id}, function (err, items) {
+                console.log(currentPlayer);
                 socket.emit('get player items', {items});
             })
         });
 
         socket.on('change item', (data) => {
-            console.log(data);
-            Character_item.findOne({user_id: user_id, item_id: data.id}, function (err, item) {
-                var conditions = {user_id: user_id, type: data.type}
+            //console.log(data);
+            console.log("Changing items");
+            Character_item.findOne({user_id: currentPlayer.id, item_id: data.id}, function (err, item) {
+                let conditions = {user_id: currentPlayer.id, type: data.type}
                     , update = {$set: {is_on: false}}
                     , options = {multi: true};
 
@@ -263,17 +282,163 @@ module.exports = (server) =>{
                     console.log("gg wp");
 
                     item.is_on = true;
-                    item.save();
-                    console.log(item);
-                };
+                    item.save().then(() => {
+                        Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
+
+                            socket.broadcast.emit('get on other player items', {username: currentPlayer.name, items})
+                            socket.emit('get on items', {items});
+                        })
+                    });
+                }
             });
         });
 
         socket.on('get on items', () => {
-            Character_item.find({user_id: user_id, is_on: true}, function (err, items) {
-                console.log({items});
+            Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
+                //console.log({items});
                 socket.emit('get on items', {items});
             })
+        });
+
+        socket.on('get on other player items', (data) => {
+            Character_item.find({user_id: data.id, is_on: true}, function (err, items) {
+                //console.log({items});
+                socket.emit('get on other player items', {username:data.type, items});
+            })
+        });
+
+        socket.on('buy item', (data) => {
+            let errors = new Array();
+            let itemObj = {};
+
+            let checkHasItem = function () {
+
+                Character_item.findOne({item_id: data, user_id: currentPlayer.id}, function (err, item) {
+                    console.log("1");
+
+                    if (item) {
+                        errors.push('You already have this item!');
+                    }
+                })
+
+            };
+
+            let checkCoins = function () {
+                return new Promise(() => {
+                    Character.findOne({user_id: currentPlayer.id}, function (err, character) {
+                        console.log("2");
+                        Item.findOne({item_id: data}, function (err, item) {
+                            itemObj = item;
+                            if (character.coins < item.price) {
+                                console.log(character.coins + " | " + item.price)
+                                errors.push('You do not have enough coins!');
+                            }
+                        })
+                    })
+                })
+            };
+
+
+            //check if item is premium
+            /*
+            let checkPremium = function () {
+                return new Promise(() => {
+                    .findOne({username: data.username}, function (err, existingUsername) {
+                        console.log("2");
+                        if (existingUsername) {
+                            errors.push('Username already exists');
+                            //callback('Username already exists');
+                        }
+                    })
+                })
+            };
+            */
+
+            let buyItem = function () {
+                console.log("3");
+                return new Promise(() => {
+
+                    if (errors.length > 0) {
+                        console.log(errors);
+
+                        let errObj = {
+                            errors: errors
+                        };
+
+                        socket.emit('buy item', errObj);
+                    } else {
+                        console.log(itemObj);
+
+                            new Character_item({
+                                user_id: currentPlayer.id,
+                                username: currentPlayer.name,
+                                item_id: data,
+                                name: itemObj.name,
+                                picture: itemObj.picture,
+                                type: itemObj.type,
+                                is_on: false
+                            }).save();
+
+                        currentPlayer.coins -= itemObj.price;
+
+                        let conditions = {user_id: currentPlayer.id, type: data.type}
+                            , update = {$set: {coins: currentPlayer.coins}}
+                            , options = {multi: true};
+
+                        Character.update(conditions, update, options, callback);
+
+
+                        function callback(err, numAffected) {
+                            console.log("bought item");
+
+                            let errObj = {
+                                errors: errors
+                            };
+
+                            socket.emit('buy item', errObj);
+                        }
+
+                    }
+                })
+            };
+
+            function asyncFunction(item, cb) {
+                setTimeout(() => {
+                    item();
+                    //console.log('done with', cb);
+                    cb();
+                }, 15);
+            }
+
+            let requests = [checkHasItem, checkCoins, buyItem].reduce((promiseChain, item) => {
+                return promiseChain.then(() => new Promise((resolve) => {
+                    asyncFunction(item, resolve);
+                }));
+            }, Promise.resolve());
+
+        });
+
+        socket.on('remove item', (data) => {
+            Character_item.findOne({item_id: data, user_id: currentPlayer.id, is_on: true}, function (err, item) {
+
+                if (item) {
+                    let conditions = {user_id: currentPlayer.id, item_id: data}
+                        , update = {$set: {is_on: false}}
+                        , options = {multi: false};
+
+                    Character_item.update(conditions, update, options, callback);
+
+                    function callback(err, numAffected) {
+                        Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
+                            //console.log({items});
+                            socket.broadcast.emit('get on other player items', {username: currentPlayer.name, items})
+                            socket.emit('get on items', {items});
+                        })
+                    }
+                }
+            })
+
+
         });
 
         socket.on('disconnect', () => {

@@ -34,10 +34,11 @@ public class LoginRegister : MonoBehaviour {
 
     private void Start()
     {
-        socket.On("user register", OnUserRegister);
-        socket.On("user login", OnUserLogin);
+        //socket.On("user register", OnUserRegister);
+        //socket.On("user login", OnUserLogin);
     }
 
+    /*
     void OnUserRegister(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data.ToString();
@@ -85,9 +86,10 @@ public class LoginRegister : MonoBehaviour {
             SceneManager.LoadScene("Room1");
         }
     }
+    */
 
-
-        public void LoginLink(bool onRegister = false)
+        /*
+    public void LoginLink(bool onRegister = false)
     {
         if(onRegister)
         {
@@ -100,6 +102,7 @@ public class LoginRegister : MonoBehaviour {
         regLink.SetActive(false);
         back.SetActive(true);
     }
+    */
 
     public void RegLink()
     {
@@ -125,7 +128,8 @@ public class LoginRegister : MonoBehaviour {
 
         string data = JsonUtility.ToJson(new LoginJSON(username, pass));
         //TODO Networking
-        socket.Emit("user login", new JSONObject(data));
+        NetworkManager.instance.GetComponent<NetworkManager>().UserLogin(new JSONObject(data));
+        //socket.Emit("user login", new JSONObject(data));
 
         Debug.Log(username + " " + pass);
     }
@@ -142,7 +146,8 @@ public class LoginRegister : MonoBehaviour {
             string data = JsonUtility.ToJson(new RegisterJSON(username, mail, pass, pass2));
             //TODO Networking
 
-            socket.Emit("user register", new JSONObject(data));
+            NetworkManager.instance.GetComponent<NetworkManager>().UserRegister(new JSONObject(data));
+            //socket.Emit("user register", new JSONObject(data));
 
 
             Debug.Log(username + " " + mail + " " + pass + " " + pass2);

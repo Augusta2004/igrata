@@ -13,8 +13,6 @@ public class ShowItems : MonoBehaviour
             itemsHolder.SetActive(true);
             var x = itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x;
             this.transform.position = new Vector2(this.transform.position.x + x, this.transform.position.y);
-
-            NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItems();
         }
         else
         {

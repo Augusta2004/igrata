@@ -81,17 +81,28 @@ namespace SocketIO
 		private object ackQueueLock;
 		private Queue<Packet> ackQueue;
 
-		#endregion
+        #endregion
 
-		#if SOCKET_IO_DEBUG
+#if SOCKET_IO_DEBUG
 		public Action<string> debugMethod;
-		#endif
+#endif
 
-		#region Unity interface
-
-		public void Awake()
+        #region Unity interface
+        public static SocketIOComponent instance;
+        public void Awake()
 		{
-			encoder = new Encoder();
+            if (instance == null)
+            {
+                instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else if (instance != null)
+            {
+                Destroy(gameObject);
+                //DontDestroyOnLoad(gameObject);
+            }
+
+            encoder = new Encoder();
 			decoder = new Decoder();
 			parser = new Parser();
 			handlers = new Dictionary<string, List<Action<SocketIOEvent>>>();

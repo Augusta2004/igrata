@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerCard : MonoBehaviour {
+public class ShowCatalog : MonoBehaviour
+{
 
+    public GameObject Catalog;
+    
     void OnMouseDown()
     {
-
+        Catalog.SetActive(true);
     }
-
 }

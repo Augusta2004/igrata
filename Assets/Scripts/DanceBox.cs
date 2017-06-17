@@ -8,18 +8,6 @@ public class DanceBox : MonoBehaviour
     public GameObject danceBox;
     public GameObject emojiBox;
 
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void OnMouseDown()
     {
         if (danceBox.activeSelf)

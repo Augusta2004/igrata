@@ -20,7 +20,7 @@ public class ClickEmoji : MonoBehaviour
         //Debug.Log(AssetDatabase.GetAssetPath(this.gameObject.GetComponent<SpriteRenderer>().sprite));
         string path = "Sprites/Menu/" + this.gameObject.GetComponent<SpriteRenderer>().sprite.name;
 
-        Debug.Log(path);
+        //Debug.Log(path);
 
         NetworkManager.instance.GetComponent<NetworkManager>().SendEmoji(path);
     }    
