@@ -9,7 +9,7 @@ module.exports = (server) =>{
     const io = require('socket.io').listen(server);
     let async = require('async');
     let playerSpawnPoints = [];
-    let clients = [];
+    let clients = {};
 
     //let username = "";
     //let user_id = 0;
@@ -22,27 +22,50 @@ module.exports = (server) =>{
         let currentPlayer = {};
         currentPlayer.name = "unknown";
 
+        socket.on('join room', (data) => {
+            //console.log(data['Room name']);
+            //console.log(currentPlayer.roomName);
+            if(io.sockets.adapter.sids[socket.id][currentPlayer.roomName]) {
+
+                for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
+                    if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
+                        clients[currentPlayer.roomName].splice(i, 1);
+                    }
+                }
+
+                let playerUsername = currentPlayer.name.toString();
+                socket.to(currentPlayer.roomName).emit('player change room', {playerUsername});
+            }
+
+            socket.join(data['Room name']);
+            currentPlayer.roomName = data['Room name'];
+        });
+
         socket.on('player connect', () => {
 
             console.log(currentPlayer.name + 'recv: player connected');
 
-            for (let i = 0; i < clients.length; i++) {
-                let playerConnected = {
-                    id: clients[i].id,
-                    name: clients[i].name,
-                    position: clients[i].position
-                };
+            if (clients[currentPlayer.roomName])
+            {
+                for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
+                    let playerConnected = {
+                        id: clients[currentPlayer.roomName][i].id,
+                        name: clients[currentPlayer.roomName][i].name,
+                        position: clients[currentPlayer.roomName][i].position
+                    };
 
-                //in your current game we need to tell you about the other players
-                socket.emit('other player connected', playerConnected);
-                console.log(currentPlayer.name + ' emit: other player connected:' + JSON.stringify(playerConnected));
+                    //in your current game we need to tell you about the other players
+                    socket.emit('other player connected', playerConnected);
+                    console.log(currentPlayer.name + ' emit: other player connected:' + JSON.stringify(playerConnected));
+                }
             }
         });
 
         socket.on('play', (data) => {
+
             console.log(currentPlayer.name + 'recv play: ' + JSON.stringify(data));
 
-            if (clients.length === 0) {
+            if (clients[currentPlayer.roomName] == undefined || clients[currentPlayer.roomName].length === 0) { //if is not defined
                 playerSpawnPoints = [];
                 data.playerSpawnPoints.forEach((_playerSpawnPoints) => {
                     let playerSpawnPoint = {
@@ -56,11 +79,18 @@ module.exports = (server) =>{
             currentPlayer.position = randomSpawnPoints.position;
             currentPlayer.animation = [0, -1];
 
-            clients.push(currentPlayer);
-            console.log(currentPlayer.name + ' emit: play:' + JSON.stringify(currentPlayer));
+            if(clients[currentPlayer.roomName] == undefined)
+            {
+                clients[currentPlayer.roomName] = new Array();
+            }
 
+            clients[currentPlayer.roomName].push(currentPlayer);
+
+            console.log(clients)
+            console.log(currentPlayer.name + ' emit: play:' + JSON.stringify(currentPlayer));
             socket.emit('play', currentPlayer);
-            socket.broadcast.emit('other player connected', currentPlayer);
+
+            socket.to(currentPlayer.roomName).emit('other player connected', currentPlayer);
         });
 
         socket.on('player move', (data) => {
@@ -68,12 +98,12 @@ module.exports = (server) =>{
             currentPlayer.position = data.position;
             currentPlayer.animation = data.animation;
             currentPlayer.numAnimation = data.numAnimation;
-            socket.broadcast.emit('player move', currentPlayer);
+            socket.to(currentPlayer.roomName).emit('player move', currentPlayer);
         });
 
         socket.on('player stop animation', (data) => {
             currentPlayer.numAnimation = data;
-            socket.broadcast.emit('player stop animation', currentPlayer);
+            socket.to(currentPlayer.roomName).emit('player stop animation', currentPlayer);
             //console.log(data);
         });
 
@@ -81,7 +111,7 @@ module.exports = (server) =>{
             data.player = currentPlayer.name;
 
             socket.emit('player chat', data);
-            socket.broadcast.emit('player chat', data);
+            socket.to(currentPlayer.roomName).emit('player chat', data);
         });
 
         socket.on('user register', (data) => {
@@ -190,11 +220,13 @@ module.exports = (server) =>{
                     console.log(errors)
                 }
                 else {
-                    for(let i = 0; i < clients.length ; i++) {
+                    /*for(let i = 0; i < clients.length ; i++) {
                         if (clients[i].name == data.username) {
                             errors.push('User with this username is already logged in!');
                         }
-                    }
+                    }*/
+
+                    //TODO check if user is logged from BongoDM
 
                     if(errors.length == 0){
                         Character.findOne({user_id: existingUser.user_id}, function (err, character) {
@@ -205,7 +237,7 @@ module.exports = (server) =>{
                             currentPlayer.id = existingUser.user_id;
                             currentPlayer.coins = character.coins;
 
-                            console.log(currentPlayer + "fdklgjdflkgj" + {clients});
+                            //console.log(currentPlayer + "fdklgjdflkgj" + {clients});
                         });
 
                         console.log("Successfull login");
@@ -269,7 +301,7 @@ module.exports = (server) =>{
 
         socket.on('get player items', () => {
             Character_item.find({user_id: currentPlayer.id}, function (err, items) {
-                console.log(currentPlayer);
+
                 socket.emit('get player items', {items});
             })
         });
@@ -298,7 +330,7 @@ module.exports = (server) =>{
                     item.save().then(() => {
                         Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
                             console.log("gg wp");
-                            socket.broadcast.emit('get on other player items', {username: currentPlayer.name, items})
+                            socket.to(currentPlayer.roomName).emit('get on other player items', {username: currentPlayer.name, items});
                             socket.emit('get on items', {items});
                         })
                     });
@@ -444,7 +476,7 @@ module.exports = (server) =>{
                     function callback(err, numAffected) {
                         Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
                             //console.log({items});
-                            socket.broadcast.emit('get on other player items', {username: currentPlayer.name, items})
+                            socket.to(currentPlayer.roomName).emit('get on other player items', {username: currentPlayer.name, items});
                             socket.emit('get on items', {items});
                         })
                     }
@@ -456,11 +488,11 @@ module.exports = (server) =>{
 
         socket.on('disconnect', () => {
             console.log(currentPlayer.name + "recv: disconnected");
-            socket.broadcast.emit('other player disconnected', currentPlayer);
+            socket.to(currentPlayer.roomName).emit('other player disconnected', currentPlayer);
 
-            for (let i = 0; i < clients.length; i++) {
-                if (clients[i].name === currentPlayer.name) {
-                    clients.splice(i, 1);
+            for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
+                if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
+                    clients[currentPlayer.roomName].splice(i, 1);
                 }
             }
         });

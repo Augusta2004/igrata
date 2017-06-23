@@ -61,6 +61,7 @@ public class NetworkManager : MonoBehaviour
         socket.On("get on items", OnGetOnItems);
         socket.On("get on other player items", OnGetOnOtherPlayerItems);
         socket.On("buy item", OnBuyItem);
+        socket.On("player change room", OnPlayerChangeRoom);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
     }
 
@@ -199,6 +200,14 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("user login", data);
     }
     
+    public void ChangeRoom(string roomName)
+    {
+        Dictionary<String, String> roomDictionary = new Dictionary<string, string>();
+        roomDictionary.Add("Room name", roomName);
+        socket.Emit("join room", new JSONObject(roomDictionary));
+
+        SceneManager.LoadScene(roomName);
+    }
     #endregion
 
     #region Listening
@@ -248,8 +257,11 @@ public class NetworkManager : MonoBehaviour
         else
         {
             sceneName = "Room1";
-            SceneManager.LoadScene(sceneName);
 
+            ChangeRoom(sceneName);           
+           
+            //Emit to server, so we can join a room          
+            
             StartCoroutine(ConnectToServerCR());
         }
     }
@@ -445,7 +457,7 @@ public class NetworkManager : MonoBehaviour
     void OnGetPlayerItems(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data.ToString();
-
+        Debug.Log(data + "ON ITEMS");
         for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
         {
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(socketIOEvent.data["items"][i].ToString());
@@ -511,8 +523,7 @@ public class NetworkManager : MonoBehaviour
     {
         string data = socketIOEvent.data.ToString();
         GameObject localPlayer = GameObject.Find(localUsername) as GameObject;
-        //Debug.Log(socketIOEvent.data);
-
+        
         localPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
 
         GameObject itemHolder = localPlayer
@@ -601,6 +612,15 @@ public class NetworkManager : MonoBehaviour
     {
         Debug.Log(socketIOEvent);
         isServerAvailable = true;
+    }
+
+    void OnPlayerChangeRoom(SocketIOEvent socketIOEvent)
+    {
+        
+        string data = socketIOEvent.data.ToString();
+        UsernameJSON userJSON = UsernameJSON.CreateFromJSON(data);
+        Debug.Log(data);
+        Destroy(GameObject.Find(userJSON.playerUsername).gameObject);
     }
 
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
@@ -764,6 +784,17 @@ public class NetworkManager : MonoBehaviour
         public static UserJSON CreateFromJSON(string data)
         {
             return JsonUtility.FromJson<UserJSON>(data);
+        }
+    }
+
+    [Serializable]
+    public class UsernameJSON
+    {
+        public string playerUsername;
+
+        public static UsernameJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<UsernameJSON>(data);
         }
     }
 
