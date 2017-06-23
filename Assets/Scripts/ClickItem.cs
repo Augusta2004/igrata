@@ -14,8 +14,17 @@ public class ClickItem : MonoBehaviour {
     {
         if(!item_on)
         {
-            NetworkManager.instance.GetComponent<NetworkManager>().ChangeItem(item_id, type);
+            string type1 = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(type.ToLower());
+            int id = this.transform.parent.transform.parent.Find("Player Clothes").transform.Find(type1).GetComponent<ItemRemove>().id;
 
+            if (id != 0)
+            {
+                this.transform.parent.transform.Find("Item " + id).GetComponent<ClickItem>().item_on = false;
+            }
+            item_on = true;
+
+            NetworkManager.instance.GetComponent<NetworkManager>().ChangeItem(item_id, type);
+            //item_on = true;
             /*string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(type);
             Debug.Log(type1);
             GameObject item = GameObject.Find("PlayerCard")

@@ -22,8 +22,12 @@ public class NetworkManager : MonoBehaviour
     public GameObject item;
 
     private bool isServerAvailable = true;
-    private string localUsername;
+    public static string localUsername;
     private int localId;
+
+
+    public static string sceneName;
+    public static bool isLogging = true;
 
     private void Awake()
     {
@@ -35,7 +39,6 @@ public class NetworkManager : MonoBehaviour
         else if (instance != null)
         {
             Destroy(gameObject);
-            //DontDestroyOnLoad(gameObject);
         }
     }
 
@@ -43,7 +46,6 @@ public class NetworkManager : MonoBehaviour
     void Start()
     {
         //subscription
-        //StartCoroutine(ConnectToServer());
 
         socket.On("user register", OnUserRegister);
         socket.On("user login", OnUserLogin);
@@ -55,6 +57,7 @@ public class NetworkManager : MonoBehaviour
         socket.On("player chat", OnPlayerChat);
         socket.On("collect item", OnCollectItem);
         socket.On("get player items", OnGetPlayerItems);
+        socket.On("get other player items", OnGetOtherPlayerItems);
         socket.On("get on items", OnGetOnItems);
         socket.On("get on other player items", OnGetOnOtherPlayerItems);
         socket.On("buy item", OnBuyItem);
@@ -76,14 +79,20 @@ public class NetworkManager : MonoBehaviour
     }
     #region Commands
 
-    IEnumerator ConnectToServer()
-    {        
+    public void ConnectToServer()
+    {
+        StartCoroutine(ConnectToServerCR());
+    }
+
+    IEnumerator ConnectToServerCR()
+    {
+        Debug.Log("Connect to Server");
         yield return new WaitForSeconds(0.5f);
 
         socket.Emit("player connect");
         yield return new WaitForSeconds(1f);
-
-        int rnd = UnityEngine.Random.Range(0, 100);
+        
+        //int rnd = UnityEngine.Random.Range(0, 100);
         
         string playerName = localUsername;
         playerNameInput = playerName;
@@ -110,6 +119,7 @@ public class NetworkManager : MonoBehaviour
 
     public void PlayerChat(String message, String emojiPath)
     {
+        Debug.Log("empty string");
         string data = JsonUtility.ToJson(new ChatJSON(message, emojiPath));
         
         socket.Emit("player chat", new JSONObject(data));
@@ -117,26 +127,17 @@ public class NetworkManager : MonoBehaviour
 
     public void SendEmoji(String emojiSprite)
     {
-        StartCoroutine(SendEmojiToServer(emojiSprite));
-    }
-
-    IEnumerator SendEmojiToServer(String emojiPath)
-    {
         GameObject.Find("EmojiBox").SetActive(false);
-        PlayerChat("", emojiPath);
-
-        yield return new WaitForSeconds(3.5f);
-        //TODO НЕ ИЗТРИВАЙ СЪОБЩЕНИЕТО, А САМО ЕМОЖИТО, КАЛТАК
-
-        PlayerChat("", "");
+        Debug.Log("hide box");
+        PlayerChat("", emojiSprite);
     }
 
-    public void CollectItem(int id)
+    public void CollectItem(int id, string playerName)
     {
-        if (isServerAvailable)
+        if (isServerAvailable && playerName == localUsername)
         {
             socket.Emit("collect item", new JSONObject(id));
-            Debug.Log("You've tried to pick item with id: " + id);
+            Debug.Log("You've tried to pick item with id: " + id + " USER - " + localUsername);
 
             isServerAvailable = false;
         }
@@ -147,6 +148,12 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("get player items");
     }
 
+    public void GetOtherPlayerItems(String username)
+    {
+        string data = JsonUtility.ToJson(new Player2JSON(19, username));
+        socket.Emit("get other player items", new JSONObject(data));
+    }
+
     public void ChangeItem(int id, string type)
     {
         string data = JsonUtility.ToJson(new ChangeItemJSON(id, type));
@@ -155,16 +162,21 @@ public class NetworkManager : MonoBehaviour
 
     public void BuyItem(int id)
     {
-        socket.Emit("buy item", new JSONObject(id));
+        if (isServerAvailable)
+        {
+            socket.Emit("buy item", new JSONObject(id));
+
+            isServerAvailable = false;
+        }
     }
 
     public void RemoveItem(int id, string type)
     {
         socket.Emit("remove item", new JSONObject(id));
-
-        Debug.Log(GameObject.Find(localUsername)
+        Debug.Log(localUsername);
+        /*Debug.Log(GameObject.Find(localUsername)
             .transform.Find("ItemHolder")
-            .transform.Find(type + "Sprite").GetComponent<SpriteRenderer>().sprite);
+            .transform.Find(type + "Sprite").GetComponent<SpriteRenderer>().sprite);*/
 
         /*GameObject.Find(localUsername)
             .transform.Find("ItemHolder")
@@ -231,16 +243,17 @@ public class NetworkManager : MonoBehaviour
                 errStr += errorJSON.errors[i] + '\n';
             }
 
-            this.transform.Find("Login").transform.Find("LoginErrors").GetComponent<Text>().text = errStr;
+            GameObject.Find("Canvas").transform.Find("Login").transform.Find("LoginErrors").GetComponent<Text>().text = errStr;
         }
         else
         {
-            SceneManager.LoadScene("Room1");
-            StartCoroutine(ConnectToServer());
+            sceneName = "Room1";
+            SceneManager.LoadScene(sceneName);
+
+            StartCoroutine(ConnectToServerCR());
         }
     }
-
-
+    
     void OnOtherPlayerConnected(SocketIOEvent socketIOEvent)
     {
         print("Someone else connected");
@@ -290,6 +303,13 @@ public class NetworkManager : MonoBehaviour
 
         socket.Emit("get on items");
 
+        string currentAnimation = p.GetComponent<SpriteRenderer>().sprite.name;
+        int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
+
+        foreach (KeyValuePair<string, Sprite[]> entry in pc.spritesArray)
+        {
+            this.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
+        }
         //GameObject playerCardInstance = Instantiate(playerCard, position, Quaternion.identity) as GameObject;
         // playerCardInstance.name = currentUserJSON.name + "PC";
     }
@@ -349,7 +369,59 @@ public class NetworkManager : MonoBehaviour
         ChatJSON chatJSON = ChatJSON.CreateFromJSON(data);
         
         GameObject p = GameObject.Find(chatJSON.player) as GameObject;
-       
+
+        if(chatJSON.message == "" && chatJSON.emoji == "")
+        {
+            p.transform.Find("ChatBaloon").gameObject.SetActive(false);
+        }
+        else if(chatJSON.message == "")
+        {
+            p.transform.Find("ChatBaloon").gameObject.SetActive(true);
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localScale = new Vector3(0.4f, 1.4f, 1);
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localPosition = new Vector3(0, 0.14f, 0);
+        } 
+        else
+        {
+            p.transform.Find("ChatBaloon").gameObject.SetActive(true);
+            p.transform.Find("ChatBaloon").transform.localPosition = new Vector3(0.01f, 0.75f, 0);
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localPosition = new Vector3(0, 0, 0);
+            p.transform.Find("Canvas").transform.Find("ChatText").transform.localPosition = new Vector3(-230.25f, -138.81f, 0);
+
+            GameObject textObj = p.transform.Find("Canvas").transform.Find("ChatText").gameObject;
+            Text textBox = textObj.GetComponent<Text>();
+
+
+            float textObjWidth = textObj.GetComponent<RectTransform>().rect.width;
+
+            TextGenerator textGen = new TextGenerator();
+            TextGenerationSettings generationSettings = textBox.GetGenerationSettings(textBox.rectTransform.rect.size);
+            float width = textGen.GetPreferredWidth(chatJSON.message, generationSettings);
+            float height = textGen.GetPreferredHeight(chatJSON.message, generationSettings);
+
+            float scaleX = (0.2f + width / 300);
+            if(scaleX > 1.4f)
+            {
+                scaleX = 1.4f;
+            }
+
+            int rows = Convert.ToInt32(Mathf.Ceil(height / 55));
+
+            float addScaleY = (0.73f * (rows - 1));
+            float scaleY = 1 + addScaleY;
+            float moveBaloonUp = 0.24f * (rows - 1);
+
+            Debug.Log("Text Width: " + width);
+            Debug.Log("Text Height: " + height);
+            Debug.Log("Text Box Width: " + textObjWidth);
+            Debug.Log("ScaleX: " + scaleX);
+            Debug.Log("ScaleY: " + scaleY);
+            Debug.Log("Rows: " + rows);
+
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localScale = new Vector3(scaleX, scaleY, 1);
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localPosition += new Vector3(0, moveBaloonUp, 0);
+            p.transform.Find("Canvas").transform.Find("ChatText").transform.localPosition += new Vector3(0, moveBaloonUp, 0);
+        }
+    
         p.transform.Find("Canvas").transform.Find("ChatText").GetComponent<Text>().text = chatJSON.message;
         
         p.transform.Find("EmojiSprite").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(chatJSON.emoji);
@@ -359,7 +431,14 @@ public class NetworkManager : MonoBehaviour
     {
         string data = socketIOEvent.data.ToString();
         ItemJSON itemJSON = ItemJSON.CreateFromJSON(data);
-        
+
+        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("Canvas").gameObject;
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = itemJSON.name;
+
+        itemDialogCanvas.transform.Find("Yes").gameObject.SetActive(false);
+        itemDialogCanvas.transform.Find("Cancel").gameObject.SetActive(false);
+        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
+
         isServerAvailable = true;
     }
 
@@ -388,16 +467,46 @@ public class NetworkManager : MonoBehaviour
 
             GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
 
-            float offset0 = i % 2;
+            float offset0 = i % 3;
             float x = itemsHolder.transform.position.x - itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x / 2 + (1 + 1.25f * offset0) * itemObject.GetComponent<SpriteRenderer>().bounds.size.x;
 
-            float offset = Mathf.Ceil((i + 1) / 3) + 1;
+            int offset = i / 3 + 1;
             float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - itemObject.GetComponent<SpriteRenderer>().bounds.size.y * offset;
             itemObject.transform.position = new Vector2(x, y);
             itemObject.GetComponent<SpriteRenderer>().sortingOrder = 201;
         }
     }
-    
+
+    void OnGetOtherPlayerItems(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        GameObject otherPlayer = GameObject.Find(localUsername) as GameObject;
+ 
+        otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
+
+        GameObject item = GameObject.Find("PlayerCardOC")
+                    .transform.Find("DragPlayerCard")
+                    .transform.Find("PlayerCardHolder")
+                    .transform.Find("Player Clothes").gameObject;
+
+        foreach (Transform child in item.transform)
+        {
+            if (child.name != "ProfilePicture")
+            {
+                item.transform.Find(child.name).GetComponent<SpriteRenderer>().sprite = null;
+            }
+        }
+
+        for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
+        {
+            PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(socketIOEvent.data["items"][i].ToString());
+
+            string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
+                        
+            item.transform.Find(type1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
+        }
+    }
+
     void OnGetOnItems(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data.ToString();
@@ -427,6 +536,7 @@ public class NetworkManager : MonoBehaviour
                 .transform.Find(type1).gameObject;
 
             item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
+            Destroy(item.GetComponent<PolygonCollider2D>());
             item.AddComponent<PolygonCollider2D>().isTrigger = true;
             item.GetComponent<ItemRemove>().id = itemsJson.item_id;
             item.GetComponent<ItemRemove>().type = itemsJson.type;
@@ -439,6 +549,15 @@ public class NetworkManager : MonoBehaviour
                 //Debug.Log(itemsJson.picture);
             }
         }
+
+        string currentAnimation = localPlayer.GetComponent<SpriteRenderer>().sprite.name;
+        int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
+        
+        foreach (KeyValuePair<string, Sprite[]> entry in localPlayer.GetComponent<CharacterController>().spritesArray)
+        {
+            itemHolder.transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
+            
+        }
     }
 
     void OnGetOnOtherPlayerItems(SocketIOEvent socketIOEvent)
@@ -446,7 +565,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data.ToString(socketIOEvent.data["items"]);
         
         GameObject otherPlayer = GameObject.Find(socketIOEvent.data["username"].str) as GameObject;
-        Debug.Log(socketIOEvent.data["username"].str);
+        Debug.Log(socketIOEvent.data["username"].str + "GG WP");
 
         otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
 
@@ -457,6 +576,9 @@ public class NetworkManager : MonoBehaviour
         {
             child.GetComponent<SpriteRenderer>().sprite = null;
         }
+
+        string currentAnimation = otherPlayer.GetComponent<SpriteRenderer>().sprite.name;
+        int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
 
         for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
         {
@@ -470,7 +592,7 @@ public class NetworkManager : MonoBehaviour
                
                 otherPlayer.transform.Find("ItemHolder")
                     .transform.Find(itemsJson.type + "Sprite")
-                    .GetComponent<SpriteRenderer>().sprite = subSprites[0];
+                    .GetComponent<SpriteRenderer>().sprite = subSprites[numAnimation];
             }
         }
     }
@@ -478,6 +600,7 @@ public class NetworkManager : MonoBehaviour
     void OnBuyItem(SocketIOEvent socketIOEvent)
     {
         Debug.Log(socketIOEvent);
+        isServerAvailable = true;
     }
 
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
@@ -509,6 +632,20 @@ public class NetworkManager : MonoBehaviour
 
         }
     }
+
+    [Serializable]
+    public class Player2JSON
+    {
+        public string name;
+        public int id;
+
+        public Player2JSON(int _id, string _name)
+        {
+            name = _name;
+            id = _id;
+        }
+    }
+
 
     [Serializable]
     public class ChatJSON

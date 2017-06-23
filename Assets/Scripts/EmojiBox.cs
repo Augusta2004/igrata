@@ -25,5 +25,7 @@ public class EmojiBox : MonoBehaviour {
         }
 
         danceBox.SetActive(false);
+
+        Debug.Log("here");
     }
 }

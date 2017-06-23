@@ -40,6 +40,8 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Other PC");
 
+            NetworkManager.instance.GetComponent<NetworkManager>().GetOtherPlayerItems(this.name);
+
             playerCard.transform.GetChild(0).gameObject.SetActive(false);
             playerCardOC.transform.GetChild(0).gameObject.SetActive(true);
             Debug.Log(playerCardOC.transform.GetChild(0));

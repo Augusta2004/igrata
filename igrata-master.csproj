@@ -101,11 +101,15 @@
     <Compile Include="Assets\Scripts\ClickEmoji.cs" />
     <Compile Include="Assets\Scripts\ClickItem.cs" />
     <Compile Include="Assets\Scripts\ClosePlayerCard.cs" />
+    <Compile Include="Assets\Scripts\CursorChange.cs" />
     <Compile Include="Assets\Scripts\DanceBox.cs" />
+    <Compile Include="Assets\Scripts\DialogController.cs" />
     <Compile Include="Assets\Scripts\DragPlayerCard.cs" />
     <Compile Include="Assets\Scripts\EmojiBox.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\ItemRemove.cs" />
+    <Compile Include="Assets\Scripts\LevelLoader.cs" />
+    <Compile Include="Assets\Scripts\LimitCharacters.cs" />
     <Compile Include="Assets\Scripts\LoginRegister.cs" />
     <Compile Include="Assets\Scripts\MinigameOne.cs" />
     <Compile Include="Assets\Scripts\NetworkManager.cs" />
@@ -211,6 +215,7 @@
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TiledInitialShaderProperties.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TiledMap.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TmxObject.cs" />
+    <Compile Include="Assets\testInstantiate.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\SocketIO\JSONObject\readme.txt" />

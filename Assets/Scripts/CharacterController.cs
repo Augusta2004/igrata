@@ -94,6 +94,7 @@ public class CharacterController : MonoBehaviour
                 int numAnimationInt = Convert.ToInt32(numAnimation);
                
                 anim.SetBool("isWalking", false);
+                anim.Play("Idle");
                 NetworkManager.instance.GetComponent<NetworkManager>().StopAnimation(numAnimationInt);
 
                 foreach (KeyValuePair<string, Sprite[]> entry in spritesArray)
@@ -118,6 +119,7 @@ public class CharacterController : MonoBehaviour
         int numAnimationInt = Convert.ToInt32(numAnimation);
 
         anim.SetBool("isWalking", false);
+        anim.Play("Idle");
         NetworkManager.instance.GetComponent<NetworkManager>().StopAnimation(numAnimationInt); //Send command to server, so other players will know we stopped moving
 
         rbody.MovePosition(rbody.position - _speed * direction * Time.deltaTime);

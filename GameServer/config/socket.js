@@ -190,20 +190,26 @@ module.exports = (server) =>{
                     console.log(errors)
                 }
                 else {
+                    for(let i = 0; i < clients.length ; i++) {
+                        if (clients[i].name == data.username) {
+                            errors.push('User with this username is already logged in!');
+                        }
+                    }
 
+                    if(errors.length == 0){
+                        Character.findOne({user_id: existingUser.user_id}, function (err, character) {
+                            //username = existingUser.username;
+                            //user_id = existingUser.user_id;
+                            //coins = character.coins;
+                            currentPlayer.name = existingUser.username;
+                            currentPlayer.id = existingUser.user_id;
+                            currentPlayer.coins = character.coins;
 
-                    Character.findOne({user_id: existingUser.user_id}, function(err, character){
-                        //username = existingUser.username;
-                        //user_id = existingUser.user_id;
-                        //coins = character.coins;
-                        currentPlayer.name = existingUser.username;
-                        currentPlayer.id = existingUser.user_id;
-                        currentPlayer.coins = character.coins;
+                            console.log(currentPlayer + "fdklgjdflkgj" + {clients});
+                        });
 
-                        console.log(currentPlayer);
-                    });
-
-                    console.log("Successfull login");
+                        console.log("Successfull login");
+                    }
                 }
 
                 let errObj = {
@@ -240,7 +246,7 @@ module.exports = (server) =>{
                             }).save().then(() => {
                                 let itemObj = {
                                     id: data,
-                                    name: itemExists.name
+                                    name: "You have successful collected " + itemExists.name
                                 };
 
                                 socket.emit('collect item', itemObj);
@@ -268,6 +274,13 @@ module.exports = (server) =>{
             })
         });
 
+        socket.on('get other player items', (data) => {
+            Character_item.find({username: data.name, is_on: true}, function (err, items) {
+
+                socket.emit('get other player items', {items});
+            })
+        });
+
         socket.on('change item', (data) => {
             //console.log(data);
             console.log("Changing items");
@@ -279,12 +292,12 @@ module.exports = (server) =>{
                 Character_item.update(conditions, update, options, callback);
 
                 function callback(err, numAffected) {
-                    console.log("gg wp");
+
 
                     item.is_on = true;
                     item.save().then(() => {
                         Character_item.find({user_id: currentPlayer.id, is_on: true}, function (err, items) {
-
+                            console.log("gg wp");
                             socket.broadcast.emit('get on other player items', {username: currentPlayer.name, items})
                             socket.emit('get on items', {items});
                         })

@@ -5,29 +5,34 @@ using UnityEngine.UI;
 
 public class ChatText : MonoBehaviour
 {
-    private float showTime;
-    public float emojiShowTime;
+    [HideInInspector]
+    public float showTime;
+
+    public bool sent = false;
+
+    private string message;
     
-    public void ShowText()
+
+    private void Update()
     {
-        StartCoroutine(SendText());
-    }
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            message = this.GetComponent<InputField>().text.ToString().Trim();
+            if (message != "")
+            {
+                NetworkManager.instance.GetComponent<NetworkManager>().PlayerChat(message, "");
 
-    IEnumerator SendText()
-    {        
-        //chatMessage.text = this.GetComponent<InputField>().text;
-        //emojiSprite.GetComponent<SpriteRenderer>().sprite = null;
+                this.GetComponent<InputField>().text = "";
+                showTime = Time.time;
 
-        NetworkManager.instance.GetComponent<NetworkManager>().PlayerChat(this.GetComponent<InputField>().text.ToString(), "");
-        
-        this.GetComponent<InputField>().text = "";
-        showTime = Time.time;
+                sent = true;
+            }
+        }
 
-        yield return new WaitForSeconds(4.5f);
-        
-        if (Time.time - showTime > 4)
+        if (sent && Time.time - showTime > 4)
         {
             NetworkManager.instance.GetComponent<NetworkManager>().PlayerChat("", "");
+            sent = false;
         }
     }
 }
