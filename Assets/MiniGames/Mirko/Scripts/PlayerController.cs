@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
 	{
 		score = 0;
 		level = 1;
-		lives = 300;
+		lives = 3;
 
 		rb = GetComponent<Rigidbody2D> ();
 		rc = new RandomColor ();
@@ -109,7 +109,11 @@ public class PlayerController : MonoBehaviour
 		
 		GetComponent<Transform>().localScale = new Vector3 (0, 0, 0);
 
-		StartCoroutine(GameOverUI());
+        //game over
+        int fish = Convert.ToInt32(score);
+        NetworkManager.instance.GetComponent<NetworkManager>().AddFish(fish);
+
+        StartCoroutine(GameOverUI());
 	}
 
 	private IEnumerator GameOverUI()

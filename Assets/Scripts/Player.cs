@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -34,11 +35,24 @@ public class Player : MonoBehaviour
                 GameObject.Destroy(child.gameObject);
             }
 
+            GameObject.Find("PlayerCard")
+                .transform.Find("DragPlayerCard")
+                .transform.Find("PlayerCardHolder")
+                .transform.Find("PlayerCardCanvas")
+                .transform.Find("Fish").GetComponent<Text>().text = NetworkManager.fish.ToString();
+
             NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItems();
         }
         else
         {
             Debug.Log("Other PC");
+
+            GameObject.Find("PlayerCardOC")
+                .transform.Find("DragPlayerCard")
+                .transform.Find("PlayerCardHolder")
+                .transform.Find("PlayerCardCanvas")
+                .transform.Find("PlayerName").GetComponent<Text>().text = this.name;
+
 
             NetworkManager.instance.GetComponent<NetworkManager>().GetOtherPlayerItems(this.name);
 

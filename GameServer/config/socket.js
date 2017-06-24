@@ -35,6 +35,8 @@ module.exports = (server) =>{
 
                 let playerUsername = currentPlayer.name.toString();
                 socket.to(currentPlayer.roomName).emit('player change room', {playerUsername});
+
+                socket.leave(currentPlayer.roomName);
             }
 
             socket.join(data['Room name']);
@@ -45,7 +47,7 @@ module.exports = (server) =>{
 
             console.log(currentPlayer.name + 'recv: player connected');
 
-            if (clients[currentPlayer.roomName])
+            if (clients[currentPlayer.roomName] != undefined)
             {
                 for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
                     let playerConnected = {
@@ -55,9 +57,22 @@ module.exports = (server) =>{
                     };
 
                     //in your current game we need to tell you about the other players
+
                     socket.emit('other player connected', playerConnected);
                     console.log(currentPlayer.name + ' emit: other player connected:' + JSON.stringify(playerConnected));
+
+                    console.log(clients[currentPlayer.roomName].length);
+                    if(i == clients[currentPlayer.roomName].length-1){
+                        socket.emit('players loaded');
+                    }
                 }
+
+                if(clients[currentPlayer.roomName].length == 0){
+                    socket.emit('players loaded');
+                }
+            }
+            else{
+                socket.emit('players loaded');
             }
         });
 
@@ -86,7 +101,7 @@ module.exports = (server) =>{
 
             clients[currentPlayer.roomName].push(currentPlayer);
 
-            console.log(clients)
+            console.log(clients);
             console.log(currentPlayer.name + ' emit: play:' + JSON.stringify(currentPlayer));
             socket.emit('play', currentPlayer);
 
@@ -176,7 +191,7 @@ module.exports = (server) =>{
 
                             new Character({
                                 user_id: counter.user_id + 1,
-                                coins: 666
+                                fish: 500
                             }).save();
 
                             counter.user_id++;
@@ -235,7 +250,7 @@ module.exports = (server) =>{
                             //coins = character.coins;
                             currentPlayer.name = existingUser.username;
                             currentPlayer.id = existingUser.user_id;
-                            currentPlayer.coins = character.coins;
+                            currentPlayer.fish = character.fish;
 
                             //console.log(currentPlayer + "fdklgjdflkgj" + {clients});
                         });
@@ -368,15 +383,15 @@ module.exports = (server) =>{
 
             };
 
-            let checkCoins = function () {
+            let checkFish = function () {
                 return new Promise(() => {
                     Character.findOne({user_id: currentPlayer.id}, function (err, character) {
                         console.log("2");
                         Item.findOne({item_id: data}, function (err, item) {
                             itemObj = item;
-                            if (character.coins < item.price) {
-                                console.log(character.coins + " | " + item.price)
-                                errors.push('You do not have enough coins!');
+                            if (character.fish < item.price) {
+                                console.log(character.fish + " | " + item.price)
+                                errors.push('You do not have enough fish!');
                             }
                         })
                     })
@@ -424,10 +439,10 @@ module.exports = (server) =>{
                                 is_on: false
                             }).save();
 
-                        currentPlayer.coins -= itemObj.price;
+                        currentPlayer.fish -= itemObj.price;
 
                         let conditions = {user_id: currentPlayer.id, type: data.type}
-                            , update = {$set: {coins: currentPlayer.coins}}
+                            , update = {$set: {fish: currentPlayer.fish}}
                             , options = {multi: true};
 
                         Character.update(conditions, update, options, callback);
@@ -455,7 +470,7 @@ module.exports = (server) =>{
                 }, 15);
             }
 
-            let requests = [checkHasItem, checkCoins, buyItem].reduce((promiseChain, item) => {
+            let requests = [checkHasItem, checkFish, buyItem].reduce((promiseChain, item) => {
                 return promiseChain.then(() => new Promise((resolve) => {
                     asyncFunction(item, resolve);
                 }));
@@ -486,7 +501,22 @@ module.exports = (server) =>{
 
         });
 
+
+        socket.on('add fish', (data) => {
+
+            currentPlayer.fish += data;
+
+            let conditions = {user_id: currentPlayer.id}
+                , update = {$set: {fish: currentPlayer.fish}}
+                , options = {multi: false};
+
+            Character.update(conditions, update, options, callback);
+
+            function callback(err, numAffected) {}
+        });
+
         socket.on('disconnect', () => {
+            //TODO FIX THIS SHIT
             console.log(currentPlayer.name + "recv: disconnected");
             socket.to(currentPlayer.roomName).emit('other player disconnected', currentPlayer);
 

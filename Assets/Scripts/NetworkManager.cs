@@ -16,6 +16,8 @@ public class NetworkManager : MonoBehaviour
     private string playerNameInput;  //Later should take data from login form  //DB
     public GameObject player;
 
+    public static int fish;
+
     public GameObject playerCard;
     public GameObject playerCardOC; //other players' cards
 
@@ -28,6 +30,9 @@ public class NetworkManager : MonoBehaviour
 
     public static string sceneName;
     public static bool isLogging = true;
+
+    public static bool otherPlayersLoaded = false;
+    public static bool playerLoaded = false;
 
     private void Awake()
     {
@@ -62,6 +67,7 @@ public class NetworkManager : MonoBehaviour
         socket.On("get on other player items", OnGetOnOtherPlayerItems);
         socket.On("buy item", OnBuyItem);
         socket.On("player change room", OnPlayerChangeRoom);
+        socket.On("players loaded", OnPlayersLoaded);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
     }
 
@@ -82,7 +88,14 @@ public class NetworkManager : MonoBehaviour
 
     public void ConnectToServer()
     {
-        StartCoroutine(ConnectToServerCR());
+        StartCoroutine(OuterIEnumerator());
+    }
+
+    IEnumerator OuterIEnumerator()
+    {
+        yield return StartCoroutine(ConnectToServerCR());
+
+        playerLoaded = true;
     }
 
     IEnumerator ConnectToServerCR()
@@ -92,9 +105,9 @@ public class NetworkManager : MonoBehaviour
 
         socket.Emit("player connect");
         yield return new WaitForSeconds(1f);
-        
+
         //int rnd = UnityEngine.Random.Range(0, 100);
-        
+
         string playerName = localUsername;
         playerNameInput = playerName;
         List<SpawnPoint> playerSpawnPoints = GetComponent<PlayerSpawner>().playerSpawnPoints;
@@ -204,10 +217,19 @@ public class NetworkManager : MonoBehaviour
     {
         Dictionary<String, String> roomDictionary = new Dictionary<string, string>();
         roomDictionary.Add("Room name", roomName);
-        socket.Emit("join room", new JSONObject(roomDictionary));
+        sceneName = roomName;
 
-        SceneManager.LoadScene(roomName);
+        socket.Emit("join room", new JSONObject(roomDictionary));
+  
+        SceneManager.LoadScene("Loading");
     }
+
+    public void AddFish(int addFish)
+    {
+        fish += addFish;
+        socket.Emit("add fish", new JSONObject(addFish));
+    }
+
     #endregion
 
     #region Listening
@@ -258,11 +280,11 @@ public class NetworkManager : MonoBehaviour
         {
             sceneName = "Room1";
 
-            ChangeRoom(sceneName);           
+            ChangeRoom(sceneName);          
            
             //Emit to server, so we can join a room          
             
-            StartCoroutine(ConnectToServerCR());
+            //StartCoroutine(ConnectToServerCR());
         }
     }
     
@@ -300,6 +322,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(data);
         UserJSON currentUserJSON = UserJSON.CreateFromJSON(data);
         localUsername = currentUserJSON.name;
+        fish = currentUserJSON.fish;
         localId = currentUserJSON.id;
 
         Vector2 position = new Vector2(currentUserJSON.position[0], currentUserJSON.position[1]);
@@ -317,11 +340,13 @@ public class NetworkManager : MonoBehaviour
 
         string currentAnimation = p.GetComponent<SpriteRenderer>().sprite.name;
         int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
-
+        Debug.Log(p.name + " | " + pc.spritesArray.Count);
         foreach (KeyValuePair<string, Sprite[]> entry in pc.spritesArray)
         {
-            this.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
+            p.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
         }
+
+        //playerLoaded = true;
         //GameObject playerCardInstance = Instantiate(playerCard, position, Quaternion.identity) as GameObject;
         // playerCardInstance.name = currentUserJSON.name + "PC";
     }
@@ -528,12 +553,12 @@ public class NetworkManager : MonoBehaviour
 
         GameObject itemHolder = localPlayer
         .transform.Find("ItemHolder").gameObject;
-
+ 
         foreach (Transform child in itemHolder.transform)
         {
             child.GetComponent<SpriteRenderer>().sprite = null;
         }
-
+     
         for (int i = 0; i < socketIOEvent.data["items"].Count; i++)
         {            
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(socketIOEvent.data["items"][i].ToString());
@@ -557,7 +582,7 @@ public class NetworkManager : MonoBehaviour
                 var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.picture + itemsJson.item_id + "sprite");
                 localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
 
-                //Debug.Log(itemsJson.picture);
+                //Debug.Log(localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type]);
             }
         }
 
@@ -569,6 +594,8 @@ public class NetworkManager : MonoBehaviour
             itemHolder.transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
             
         }
+
+        Debug.Log(localPlayer.GetComponent<CharacterController>().spritesArray.Count);
     }
 
     void OnGetOnOtherPlayerItems(SocketIOEvent socketIOEvent)
@@ -615,12 +642,16 @@ public class NetworkManager : MonoBehaviour
     }
 
     void OnPlayerChangeRoom(SocketIOEvent socketIOEvent)
-    {
-        
+    {        
         string data = socketIOEvent.data.ToString();
         UsernameJSON userJSON = UsernameJSON.CreateFromJSON(data);
         Debug.Log(data);
         Destroy(GameObject.Find(userJSON.playerUsername).gameObject);
+    }
+
+    void OnPlayersLoaded(SocketIOEvent socketIOEvent)
+    {
+        otherPlayersLoaded = true;
     }
 
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
@@ -780,6 +811,7 @@ public class NetworkManager : MonoBehaviour
         public float[] position;
         public float[] animation;
         public int numAnimation;
+        public int fish;
 
         public static UserJSON CreateFromJSON(string data)
         {

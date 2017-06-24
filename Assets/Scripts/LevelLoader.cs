@@ -18,28 +18,49 @@ public class LevelLoader : MonoBehaviour {
 
     IEnumerator LoadAsynchronously()
     {
-        AsyncOperation operation = SceneManager.LoadSceneAsync(NetworkManager.sceneName);
+        AsyncOperation operation = SceneManager.LoadSceneAsync(NetworkManager.sceneName, LoadSceneMode.Additive);
         operation.allowSceneActivation = false;        
 
         if (NetworkManager.isLogging == true)
         {
-            //NetworkManager.instance.GetComponent<NetworkManager>().ConnectToServer();
-
             NetworkManager.isLogging = false;
         }
 
-        Debug.Log("Loading...");
-
         loadingScreen.SetActive(true);
-        Debug.Log("Loading 1...");
-        //yield return new WaitForSeconds(5f);
+
+
+        if(NetworkManager.sceneName.Contains("Room"))
+        {
+            NetworkManager.instance.GetComponent<NetworkManager>().ConnectToServer();
+            Debug.Log("Loading...");
+            Debug.Log(NetworkManager.playerLoaded);
+
+            Debug.Log("Loading 1...");
+            //yield return new WaitForSeconds(5f);
+            int count = 0;
+            //while (!NetworkManager.playerLoaded)
+            while (!NetworkManager.playerLoaded || !NetworkManager.otherPlayersLoaded)
+            {
+                yield return new WaitForSeconds(0.1f);
+                progressText.text = "Loading... bears";
+                Debug.Log(NetworkManager.playerLoaded);
+                count++;
+            }
+        }
+        
+        //Debug.Log(NetworkManager.playerLoaded + " | " + NetworkManager.otherPlayersLoaded);
         while (!operation.isDone)
         {
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(0.1f);
             Debug.Log(operation.progress);
 
             if (operation.progress >= 0.9f)
             {
+                GameObject.Find("Main Camera").SetActive(false);
+                GameObject.Find("Canvas").SetActive(false);
+
+                NetworkManager.playerLoaded = false;
+                NetworkManager.otherPlayersLoaded = false;
 
                 break;
             }
@@ -47,7 +68,7 @@ public class LevelLoader : MonoBehaviour {
             float progress = Mathf.Clamp01(operation.progress / 0.9f);
 
             slider.value = progress;
-            progressText.text = "Loading... " + (progress * 100) + "%";
+            progressText.text = "Loading... " + (progress * 100) + "%  scene";
             Debug.Log("Inside Loading...");
 
 
@@ -55,9 +76,10 @@ public class LevelLoader : MonoBehaviour {
         }
 
         Debug.Log("Loading 2...");
+        //yield return new WaitForSeconds(5f);
         operation.allowSceneActivation = true;
-        yield return new WaitForSeconds(5f);
-        
+
+
         yield return operation;
     }
 }

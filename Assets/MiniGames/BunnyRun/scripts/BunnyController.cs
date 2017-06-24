@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -76,6 +77,11 @@ public class BunnyController : MonoBehaviour {
 
             bunnyHurtTime = Time.time;
             myAnim.SetBool("bunnyHurt", true);
+
+            //game over
+            double fish = Math.Ceiling(Convert.ToDouble(scoreText.text));
+            NetworkManager.instance.GetComponent<NetworkManager>().AddFish(Convert.ToInt32(fish));
+
         }
 
         if (collision.collider.gameObject.layer == LayerMask.NameToLayer("Ground"))

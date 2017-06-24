@@ -130,8 +130,6 @@ public class LoginRegister : MonoBehaviour {
         //TODO Networking
         NetworkManager.instance.GetComponent<NetworkManager>().UserLogin(new JSONObject(data));
         //socket.Emit("user login", new JSONObject(data));
-
-        Debug.Log(username + " " + pass);
     }
 
     public void Register()

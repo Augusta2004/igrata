@@ -7,11 +7,18 @@ public class MinigameOne : MonoBehaviour {
 
 	public string minigame;
 
-	// Use this for initialization
 
-	public void PlayMinigame()
+    // Use this for initialization
+
+    private void OnMouseDown()
+    {
+        PlayMinigame();
+    }
+
+    public void PlayMinigame()
 	{
-		SceneManager.LoadScene (minigame);	
-	}
+        NetworkManager.sceneName = minigame;
+        NetworkManager.instance.GetComponent<NetworkManager>().ChangeRoom(minigame);
+    }
 		
 }
