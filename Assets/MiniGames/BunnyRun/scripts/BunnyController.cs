@@ -20,7 +20,6 @@ public class BunnyController : MonoBehaviour {
     private int jumpsLeft = 2;
 
 
-
     void Start ()
 	{
 		rb = GetComponent<Rigidbody2D> ();
@@ -77,7 +76,7 @@ public class BunnyController : MonoBehaviour {
 
             bunnyHurtTime = Time.time;
             myAnim.SetBool("bunnyHurt", true);
-
+            Debug.Log("Game Over");
             //game over
             double fish = Math.Ceiling(Convert.ToDouble(scoreText.text));
             NetworkManager.instance.GetComponent<NetworkManager>().AddFish(Convert.ToInt32(fish));

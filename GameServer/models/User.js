@@ -5,7 +5,10 @@ let userSchema = mongoose.Schema({
     username: String,
     password: String,
     mail: String,
-    date_reg: Number
+    sendMail: Boolean,
+    date_reg: Number,
+    is_logged: Boolean,
+    last_logged: Number
 });
 
 const User = mongoose.model('User', userSchema);

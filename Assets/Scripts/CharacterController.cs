@@ -33,7 +33,7 @@ public class CharacterController : MonoBehaviour
         rbody = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
 
-        Physics2D.IgnoreLayerCollision(10, 10);       
+        Physics2D.IgnoreLayerCollision(10, 10);
     }
 
     // Update is called once per frame

@@ -17,7 +17,6 @@ public class MinigameOne : MonoBehaviour {
 
     public void PlayMinigame()
 	{
-        NetworkManager.sceneName = minigame;
         NetworkManager.instance.GetComponent<NetworkManager>().ChangeRoom(minigame);
     }
 		

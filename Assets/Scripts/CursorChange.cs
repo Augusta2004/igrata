@@ -13,8 +13,8 @@ public class CursorChange : MonoBehaviour {
 
     void OnMouseOver()
     {
-        Debug.Log("change cursor");
-        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+        //Debug.Log("change cursor");
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.ForceSoftware);
     }
 
     void OnMouseExit()

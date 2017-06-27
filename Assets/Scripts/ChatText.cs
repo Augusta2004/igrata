@@ -10,8 +10,7 @@ public class ChatText : MonoBehaviour
 
     public bool sent = false;
 
-    private string message;
-    
+    private string message;    
 
     private void Update()
     {

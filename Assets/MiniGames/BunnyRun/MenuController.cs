@@ -14,7 +14,7 @@ public class MenuController : MonoBehaviour {
 	void Update () {
 		if(Input.GetKeyDown(KeyCode.Escape))
         {
-			SceneManager.LoadScene("Room2");
+            ExitGame();
         }
 	}
 
@@ -25,6 +25,6 @@ public class MenuController : MonoBehaviour {
 
     public void ExitGame()
     {
-		SceneManager.LoadScene("Room2");
+        NetworkManager.instance.GetComponent<NetworkManager>().ChangeRoom("Room2");
     }
 }

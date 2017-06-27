@@ -23,7 +23,7 @@ public class NetworkManager : MonoBehaviour
 
     public GameObject item;
 
-    private bool isServerAvailable = true;
+    public static bool isServerAvailable = true;
     public static string localUsername;
     private int localId;
 
@@ -250,7 +250,7 @@ public class NetworkManager : MonoBehaviour
                 errStr += errorJSON.errors[i] + '\n';
             }
 
-            this.transform.Find("Register").transform.Find("RegErrors").GetComponent<Text>().text = errStr;
+            GameObject.Find("Canvas").transform.Find("Register").transform.Find("RegErrors").GetComponent<Text>().text = errStr;
         }
         else
         {
@@ -391,8 +391,9 @@ public class NetworkManager : MonoBehaviour
         GameObject p = GameObject.Find(userJSON.name) as GameObject;
        
         p.GetComponent<Animator>().SetBool("isWalking", false);
+        p.GetComponent<Animator>().Play("Idle");
 
-        
+
         var sprArr = p.GetComponent<CharacterController>().spritesArray;
         foreach (KeyValuePair<string, Sprite[]> entry in sprArr)
         {

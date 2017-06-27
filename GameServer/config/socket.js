@@ -11,6 +11,9 @@ module.exports = (server) =>{
     let playerSpawnPoints = [];
     let clients = {};
 
+    let bcrypt = require('bcrypt');
+    const saltRounds = 10;
+
     //let username = "";
     //let user_id = 0;
     //let coins = 0;
@@ -21,26 +24,32 @@ module.exports = (server) =>{
 
         let currentPlayer = {};
         currentPlayer.name = "unknown";
+        currentPlayer.roomName = "unknown";
 
         socket.on('join room', (data) => {
-            //console.log(data['Room name']);
-            //console.log(currentPlayer.roomName);
+
             if(io.sockets.adapter.sids[socket.id][currentPlayer.roomName]) {
 
-                for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
-                    if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
-                        clients[currentPlayer.roomName].splice(i, 1);
+                if(currentPlayer.roomName.indexOf("Room") !== -1)
+                {
+                    for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
+                        if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
+                            clients[currentPlayer.roomName].splice(i, 1);
+                        }
                     }
-                }
 
-                let playerUsername = currentPlayer.name.toString();
-                socket.to(currentPlayer.roomName).emit('player change room', {playerUsername});
+                    let playerUsername = currentPlayer.name.toString();
+                    socket.to(currentPlayer.roomName).emit('player change room', {playerUsername});
+                }
 
                 socket.leave(currentPlayer.roomName);
             }
 
             socket.join(data['Room name']);
             currentPlayer.roomName = data['Room name'];
+
+            console.log(JSON.stringify(clients));
+            console.log(currentPlayer.roomName);
         });
 
         socket.on('player connect', () => {
@@ -143,8 +152,21 @@ module.exports = (server) =>{
                         errors.push('Email already exists');
                         //callback('Email already exists');
                     }
+                    else
+                    {
+                        validateMail();
+                    }
                 })
 
+            };
+
+            let validateMail = function () {
+                var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+                    if (!re.test(data.mail)) {
+                        errors.push('Email not valid!');
+                    }
+                    console.log("test " + re.test(data.mail));
             };
 
 
@@ -156,7 +178,28 @@ module.exports = (server) =>{
                             errors.push('Username already exists');
                             //callback('Username already exists');
                         }
+                        else
+                        {
+                            var re = /^([a-zA-Z0-9_-]+)$/;
+
+                            if (!re.test(data.username)) {
+                                errors.push('Username not valid!');
+                            }
+                            else if(data.username.length > 12)
+                            {
+                                errors.push('Username should be at most 12 characters!');
+                            }
+                        }
                     })
+                })
+            };
+
+            let checkPassword = function () {
+                return new Promise(() => {
+                    if(data.password != data.password2)
+                    {
+                        errors.push('Passwords do not match!');
+                    }
                 })
             };
 
@@ -174,34 +217,44 @@ module.exports = (server) =>{
                         socket.emit('user register', errObj);
                     } else {
                         console.log('success');
-
+                        console.log(data);
                         let lastUserId = Counter.findOne();
                         lastUserId.select('user_id');
 
                         lastUserId.exec((err, counter) => {
-                            console.log(counter.user_id);
 
-                            new User({
-                                user_id: counter.user_id + 1,
-                                username: data.username,
-                                password: data.password,
-                                mail: data.mail,
-                                date_reg: 666
-                            }).save();
+                            bcrypt.genSalt(saltRounds, function(err, salt) {
+                                bcrypt.hash(data.password, salt, function(err, hash) {
 
-                            new Character({
-                                user_id: counter.user_id + 1,
-                                fish: 500
-                            }).save();
+                                    console.log(counter.user_id);
 
-                            counter.user_id++;
-                            counter.save().then(() => {
-                                let errObj = {
-                                    errors: errors
-                                };
+                                    new User({
+                                        user_id: counter.user_id + 1,
+                                        username: data.username,
+                                        password: hash,
+                                        mail: data.mail,
+                                        sendMail: data.sendMail,
+                                        date_reg: Math.floor(Date.now() / 1000),
+                                        is_logged: false
+                                    }).save();
 
-                                socket.emit('user register', errObj);
+                                    new Character({
+                                        user_id: counter.user_id + 1,
+                                        fish: 500
+                                    }).save();
+
+                                    counter.user_id++;
+                                    counter.save().then(() => {
+                                        let errObj = {
+                                            errors: errors
+                                        };
+
+                                        socket.emit('user register', errObj);
+                                    });
+                                });
                             });
+
+
                         })
                     }
                 })
@@ -215,7 +268,7 @@ module.exports = (server) =>{
                 }, 15);
             }
 
-            let requests = [checkMail, checkUsername, registerUser].reduce((promiseChain, item) => {
+            let requests = [checkMail, checkUsername, checkPassword, registerUser].reduce((promiseChain, item) => {
                 return promiseChain.then(() => new Promise((resolve) => {
                     asyncFunction(item, resolve);
                 }));
@@ -227,44 +280,69 @@ module.exports = (server) =>{
 
             let errors = new Array();
 
-            User.findOne({username: data.username, password: data.password}, function (err, existingUser) {
+            User.findOne({username: data.username}, function (err, existingUser) {
+                // Load hash from your password DB.
+                if(existingUser)
+                {
+                    bcrypt.compare(data.password, existingUser.password, function(err, res) {
 
-
-                if (!existingUser) {
-                    errors.push('Username or password is wrong!');
-                    console.log(errors)
-                }
-                else {
-                    /*for(let i = 0; i < clients.length ; i++) {
-                        if (clients[i].name == data.username) {
-                            errors.push('User with this username is already logged in!');
+                        if(!res)
+                        {
+                            errors.push('Username or password is wrong!');
+                            console.log(errors)
                         }
-                    }*/
+                        else
+                        {
+                            if(existingUser.is_logged)
+                            {
+                                errors.push('You are already logged in!');
+                                console.log(errors)
+                            }
+                            else
+                            {
+                                if(errors.length == 0){
+                                    Character.findOne({user_id: existingUser.user_id}, function (err, character) {
 
-                    //TODO check if user is logged from BongoDM
+                                        let conditions = {user_id: existingUser.user_id}
+                                            , update = {$set: {is_logged: true, last_logged: Math.floor(Date.now() / 1000)}}
+                                            , options = {multi: false};
 
-                    if(errors.length == 0){
-                        Character.findOne({user_id: existingUser.user_id}, function (err, character) {
-                            //username = existingUser.username;
-                            //user_id = existingUser.user_id;
-                            //coins = character.coins;
-                            currentPlayer.name = existingUser.username;
-                            currentPlayer.id = existingUser.user_id;
-                            currentPlayer.fish = character.fish;
+                                        User.update(conditions, update, options, callback);
 
-                            //console.log(currentPlayer + "fdklgjdflkgj" + {clients});
-                        });
+                                        function callback(err, numAffected) {
 
-                        console.log("Successfull login");
-                    }
+                                            //username = existingUser.username;
+                                            //user_id = existingUser.user_id;
+                                            //coins = character.coins;
+                                            currentPlayer.name = existingUser.username;
+                                            currentPlayer.id = existingUser.user_id;
+                                            currentPlayer.fish = character.fish;
+
+                                            //console.log(currentPlayer + "fdklgjdflkgj" + {clients});
+                                        }
+                                    });
+
+                                    console.log("Successfull login");
+                                }
+                            }
+                        }
+
+                        let errObj = {
+                            errors: errors
+                        };
+
+                        socket.emit('user login', errObj);
+                    });
                 }
-
-                let errObj = {
-                    errors: errors
-                };
-
-                socket.emit('user login', errObj);
-            })
+                else
+                {
+                    errors.push('Username does not exist!');
+                    let errObj = {
+                        errors: errors
+                    };
+                    socket.emit('user login', errObj);
+                }
+            });
         });
 
         socket.on('collect item', (data) => {
@@ -501,7 +579,6 @@ module.exports = (server) =>{
 
         });
 
-
         socket.on('add fish', (data) => {
 
             currentPlayer.fish += data;
@@ -517,13 +594,23 @@ module.exports = (server) =>{
 
         socket.on('disconnect', () => {
             //TODO FIX THIS SHIT
-            console.log(currentPlayer.name + "recv: disconnected");
-            socket.to(currentPlayer.roomName).emit('other player disconnected', currentPlayer);
+            if(currentPlayer.roomName != "unknown") {
+                console.log(currentPlayer.name + "recv: disconnected");
+                socket.to(currentPlayer.roomName).emit('other player disconnected', currentPlayer);
 
-            for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
-                if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
-                    clients[currentPlayer.roomName].splice(i, 1);
+                for (let i = 0; i < clients[currentPlayer.roomName].length; i++) {
+                    if (clients[currentPlayer.roomName][i].name === currentPlayer.name) {
+                        clients[currentPlayer.roomName].splice(i, 1);
+                    }
                 }
+
+                let conditions = {user_id: currentPlayer.id}
+                    , update = {$set: {is_logged: false}}
+                    , options = {multi: false};
+
+                User.update(conditions, update, options, callback);
+
+                function callback(err, numAffected) {};
             }
         });
     });

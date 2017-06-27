@@ -18,7 +18,6 @@ public class LoginRegister : MonoBehaviour {
     public GameObject registerSuccess;
     public GameObject back;
 
-    private bool isServerAvailable = true;
    /* private void Awake()
     {
         if (instance == null)
@@ -124,7 +123,7 @@ public class LoginRegister : MonoBehaviour {
     public void Login()
     {
         string username = GameObject.Find("LoginUsername").transform.Find("Text").GetComponent<Text>().text;
-        string pass = GameObject.Find("LoginPass").transform.Find("Text").GetComponent<Text>().text;
+        string pass = GameObject.Find("LoginPass").GetComponent<InputField>().text;
 
         string data = JsonUtility.ToJson(new LoginJSON(username, pass));
         //TODO Networking
@@ -134,23 +133,24 @@ public class LoginRegister : MonoBehaviour {
 
     public void Register()
     {
-        if (isServerAvailable) //Check if prevous request is finished
+        if (NetworkManager.isServerAvailable) //Check if prevous request is finished
         {
             string username = GameObject.Find("RegUsername").transform.Find("Text").GetComponent<Text>().text;
             string mail = GameObject.Find("RegMail").transform.Find("Text").GetComponent<Text>().text;
-            string pass = GameObject.Find("RegPass").transform.Find("Text").GetComponent<Text>().text;
-            string pass2 = GameObject.Find("RegPass2").transform.Find("Text").GetComponent<Text>().text;
+            string pass = GameObject.Find("RegPass").GetComponent<InputField>().text;
+            string pass2 = GameObject.Find("RegPass2").GetComponent<InputField>().text;
+            bool sendMail = GameObject.Find("SendMail").GetComponent<Toggle>().isOn;
 
-            string data = JsonUtility.ToJson(new RegisterJSON(username, mail, pass, pass2));
+            string data = JsonUtility.ToJson(new RegisterJSON(username, mail, pass, pass2, sendMail));
             //TODO Networking
 
             NetworkManager.instance.GetComponent<NetworkManager>().UserRegister(new JSONObject(data));
             //socket.Emit("user register", new JSONObject(data));
 
 
-            Debug.Log(username + " " + mail + " " + pass + " " + pass2);
+            Debug.Log(username + " " + mail + " " + pass + " " + pass2 + " " + data);
 
-            isServerAvailable = false;
+            NetworkManager.isServerAvailable = false;
         }
     }
 
@@ -161,13 +161,15 @@ public class LoginRegister : MonoBehaviour {
         public string mail;
         public string password;
         public string password2;
+        public bool sendMail;
 
-        public RegisterJSON(string _username, string _mail, string _password, string _password2)
+        public RegisterJSON(string _username, string _mail, string _password, string _password2, bool _sendMail)
         {
             username = _username;
             mail = _mail;
             password = _password;
             password2 = _password2;
+            sendMail = _sendMail;
         }
     }
 

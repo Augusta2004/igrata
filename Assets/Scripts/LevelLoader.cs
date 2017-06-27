@@ -21,10 +21,10 @@ public class LevelLoader : MonoBehaviour {
         AsyncOperation operation = SceneManager.LoadSceneAsync(NetworkManager.sceneName, LoadSceneMode.Additive);
         operation.allowSceneActivation = false;        
 
-        if (NetworkManager.isLogging == true)
+        /*if (NetworkManager.isLogging == true)
         {
             NetworkManager.isLogging = false;
-        }
+        }*/
 
         loadingScreen.SetActive(true);
 
@@ -43,7 +43,7 @@ public class LevelLoader : MonoBehaviour {
             {
                 yield return new WaitForSeconds(0.1f);
                 progressText.text = "Loading... bears";
-                Debug.Log(NetworkManager.playerLoaded);
+                //Debug.Log(NetworkManager.playerLoaded);
                 count++;
             }
         }
@@ -56,7 +56,6 @@ public class LevelLoader : MonoBehaviour {
 
             if (operation.progress >= 0.9f)
             {
-                GameObject.Find("Main Camera").SetActive(false);
                 GameObject.Find("Canvas").SetActive(false);
 
                 NetworkManager.playerLoaded = false;
