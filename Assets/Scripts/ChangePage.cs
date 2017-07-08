@@ -62,7 +62,7 @@ public class ChangePage : MonoBehaviour {
 
             pagename = "newspaperpage" + num;
 
-            Sprite spr = Resources.Load<Sprite>("Sprites/" + pagename);
+            Sprite spr = Resources.Load<Sprite>("Sprites/Newspaper/" + pagename);
             Newspaper.GetComponent<SpriteRenderer>().sprite = spr;
         }
     }

@@ -43,6 +43,7 @@ public class LevelLoader : MonoBehaviour {
             {
                 yield return new WaitForSeconds(0.1f);
                 progressText.text = "Loading... bears";
+                
                 //Debug.Log(NetworkManager.playerLoaded);
                 count++;
             }

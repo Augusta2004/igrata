@@ -15,7 +15,7 @@
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
     <CompilerResponseFile></CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
-    <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
+    <UnityBuildTarget>WebGL:20</UnityBuildTarget>
     <UnityVersion>5.6.0f3</UnityVersion>
     <RootNamespace></RootNamespace>
     <LangVersion>4</LangVersion>
@@ -27,7 +27,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Debug\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_0;UNITY_5_6;UNITY_5;UNITY_ANALYTICS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_0;UNITY_5_6;UNITY_5;UNITY_ANALYTICS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNET;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_WEBGL;UNITY_WEBGL_API;UNITY_DISABLE_WEB_VERIFICATION;UNITY_GFX_USE_PLATFORM_VSYNC;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_VR;ENABLE_IL2CPP;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -37,7 +37,7 @@
     <IntermediateOutputPath>Temp\UnityVS_obj\Release\</IntermediateOutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_0;UNITY_5_6;UNITY_5;UNITY_ANALYTICS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_DUCK_TYPING;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MICROPHONE;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_RAKNET;ENABLE_UNET;ENABLE_LZMA;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;PLATFORM_SUPPORTS_MONO;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_STANDALONE_WIN;UNITY_STANDALONE;ENABLE_SUBSTANCE;ENABLE_RUNTIME_GI;ENABLE_MOVIES;ENABLE_NETWORK;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_EVENT_QUEUE;ENABLE_CLUSTERINPUT;ENABLE_VR;ENABLE_WEBSOCKET_HOST;ENABLE_MONO;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
+    <DefineConstants>TRACE;UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_5_6_0;UNITY_5_6;UNITY_5;UNITY_ANALYTICS;ENABLE_AUDIO;ENABLE_CACHING;ENABLE_CLOTH;ENABLE_GENERICS;ENABLE_PVR_GI;ENABLE_MULTIPLE_DISPLAYS;ENABLE_PHYSICS;ENABLE_RUNTIME_NAVMESH_BUILDING;ENABLE_SPRITERENDERER_FLIPPING;ENABLE_SPRITES;ENABLE_TERRAIN;ENABLE_UNET;ENABLE_UNITYEVENTS;ENABLE_WEBCAM;ENABLE_WWW;ENABLE_CLOUD_SERVICES_COLLAB;ENABLE_CLOUD_HUB;ENABLE_CLOUD_PROJECT_ID;ENABLE_CLOUD_SERVICES_UNET;ENABLE_CLOUD_SERVICES_BUILD;ENABLE_CLOUD_LICENSE;ENABLE_EDITOR_METRICS;ENABLE_EDITOR_METRICS_CACHING;ENABLE_NATIVE_ARRAY;INCLUDE_DYNAMIC_GI;INCLUDE_GI;RENDER_SOFTWARE_CURSOR;INCLUDE_PUBNUB;ENABLE_PLAYMODE_TESTS_RUNNER;ENABLE_SCRIPTING_NEW_CSHARP_COMPILER;ENABLE_VIDEO;UNITY_WEBGL;UNITY_WEBGL_API;UNITY_DISABLE_WEB_VERIFICATION;UNITY_GFX_USE_PLATFORM_VSYNC;ENABLE_CRUNCH_TEXTURE_COMPRESSION;ENABLE_UNITYWEBREQUEST;ENABLE_CLOUD_SERVICES;ENABLE_CLOUD_SERVICES_ADS;ENABLE_CLOUD_SERVICES_ANALYTICS;ENABLE_CLOUD_SERVICES_PURCHASING;ENABLE_CLOUD_SERVICES_CRASH_REPORTING;ENABLE_VR;ENABLE_IL2CPP;NET_2_0_SUBSET;ENABLE_PROFILER;DEBUG;TRACE;UNITY_ASSERTIONS;UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_WIN;ENABLE_NATIVE_ARRAY_CHECKS;UNITY_TEAM_LICENSE;ENABLE_VSTU</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
@@ -91,6 +91,7 @@
     <Compile Include="Assets\MiniGames\Mirko\Scripts\GroundController.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\PlayerController.cs" />
     <Compile Include="Assets\MiniGames\Mirko\Scripts\RandomColor.cs" />
+    <Compile Include="Assets\Scripts\AssetLoader.cs" />
     <Compile Include="Assets\Scripts\Buy.cs" />
     <Compile Include="Assets\Scripts\ChangeCatalogPage.cs" />
     <Compile Include="Assets\Scripts\ChangePage.cs" />
@@ -119,86 +120,6 @@
     <Compile Include="Assets\Scripts\ShowItems.cs" />
     <Compile Include="Assets\Scripts\ShowNewsPaper.cs" />
     <Compile Include="Assets\Scripts\SpawnPoint.cs" />
-    <Compile Include="Assets\SocketIO\JSONObject\JSONObject.cs" />
-    <Compile Include="Assets\SocketIO\JSONObject\JSONTemplates.cs" />
-    <Compile Include="Assets\SocketIO\JSONObject\VectorTemplates.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\Ack.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\Decoder.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\Encoder.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\EnginePacketType.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\Packet.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\Parser.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\SocketIOComponent.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\SocketIOEvent.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\SocketIOException.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\SocketIO\SocketPacketType.cs" />
-    <Compile Include="Assets\SocketIO\Scripts\Test\TestSocketIO.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\AssemblyInfo.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\ByteOrder.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\CloseEventArgs.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\CloseStatusCode.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\CompressionMethod.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\ErrorEventArgs.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Ext.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Fin.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\HandshakeBase.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\HandshakeRequest.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\HandshakeResponse.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\LogData.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\LogLevel.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Logger.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Mask.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\MessageEventArgs.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\AuthenticationBase.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\AuthenticationChallenge.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\AuthenticationResponse.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\AuthenticationSchemes.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\Chunk.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ChunkStream.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ChunkedRequestStream.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\Cookie.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\CookieCollection.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\CookieException.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\EndPointListener.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\EndPointManager.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpBasicIdentity.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpConnection.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpDigestIdentity.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpHeaderInfo.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpHeaderType.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListener.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListenerContext.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListenerException.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListenerPrefixCollection.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListenerRequest.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpListenerResponse.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpStatusCode.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpStreamAsyncResult.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpUtility.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\HttpVersion.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\InputChunkState.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\InputState.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\LineState.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ListenerAsyncResult.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ListenerPrefix.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\NetworkCredential.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\QueryStringCollection.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ReadBufferState.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\RequestStream.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\ResponseStream.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\Security\SslStream.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\WebHeaderCollection.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\WebSockets\HttpListenerWebSocketContext.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\WebSockets\TcpListenerWebSocketContext.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Net\WebSockets\WebSocketContext.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Opcode.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\PayloadData.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\Rsv.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\WebSocket.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\WebSocketException.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\WebSocketFrame.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\WebSocketState.cs" />
-    <Compile Include="Assets\SocketIO\WebsocketSharp\WebSocketStream.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\CircleObject.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\GroupLayer.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\ImportBehaviour.cs" />
@@ -215,10 +136,105 @@
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TiledInitialShaderProperties.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TiledMap.cs" />
     <Compile Include="Assets\Tiled2Unity\Scripts\Runtime\TmxObject.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Data\SocketOpenData.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Events\Ack.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Events\SocketIOEvent.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\IO\Decoder.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\IO\Encoder.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\IO\Parser.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Packet\EnginePacketType.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Packet\SocketPacket.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\Packet\SocketPacketType.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\SocketIO\BaseSocketIO.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\SocketIO\NativeSocketIO.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\SocketIO\SocketIOSettings.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\SocketIO\WebGLSocketIO.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\SocketIOController.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\WebGL\AckJson.cs" />
+    <Compile Include="Assets\UnitySocketIO\Scripts\WebGL\EventJson.cs" />
+    <Compile Include="Assets\UnitySocketIO\Test\SocketTest.cs" />
+    <Compile Include="Assets\UnitySocketIO\Test\TestObject.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\AssemblyInfo.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\ByteOrder.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\CloseEventArgs.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\CloseStatusCode.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\CompressionMethod.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\ErrorEventArgs.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Ext.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Fin.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\HttpBase.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\HttpRequest.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\HttpResponse.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\LogData.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\LogLevel.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Logger.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Mask.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\MessageEventArgs.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\AuthenticationBase.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\AuthenticationChallenge.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\AuthenticationResponse.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\AuthenticationSchemes.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\Chunk.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ChunkStream.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ChunkedRequestStream.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ClientSslConfiguration.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\Cookie.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\CookieCollection.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\CookieException.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\EndPointListener.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\EndPointManager.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpBasicIdentity.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpConnection.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpDigestIdentity.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpHeaderInfo.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpHeaderType.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListener.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerAsyncResult.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerContext.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerException.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerPrefix.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerPrefixCollection.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerRequest.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpListenerResponse.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpRequestHeader.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpResponseHeader.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpStatusCode.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpStreamAsyncResult.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpUtility.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\HttpVersion.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\InputChunkState.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\InputState.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\LineState.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\NetworkCredential.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\QueryStringCollection.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ReadBufferState.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\RequestStream.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ResponseStream.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\ServerSslConfiguration.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\SslConfiguration.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\WebHeaderCollection.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\WebSockets\HttpListenerWebSocketContext.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\WebSockets\TcpListenerWebSocketContext.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Net\WebSockets\WebSocketContext.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Opcode.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\PayloadData.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Rsv.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\HttpRequestEventArgs.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\HttpServer.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\IWebSocketSession.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\ServerState.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketBehavior.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketServer.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketServiceHost.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketServiceHost`1.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketServiceManager.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\Server\WebSocketSessionManager.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\WebSocket.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\WebSocketException.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\WebSocketFrame.cs" />
+    <Compile Include="Assets\UnitySocketIO\WebSocketSharp\WebSocketState.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\SocketIO\JSONObject\readme.txt" />
-    <None Include="Assets\SocketIO\Readme.txt" />
     <None Include="Assets\Tiled2Unity\Imported\_ReadMe.txt" />
     <None Include="Assets\Tiled2Unity\Imported\beach.tiled2unity.xml" />
     <None Include="Assets\Tiled2Unity\Imported\ice-land.tiled2unity.xml" />

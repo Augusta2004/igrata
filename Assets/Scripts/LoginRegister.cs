@@ -1,5 +1,4 @@
-﻿using SocketIO;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +8,6 @@ using UnityEngine.UI;
 public class LoginRegister : MonoBehaviour {
 
     //public static LoginRegister instance;
-    public SocketIOComponent socket;
 
     public GameObject login;
     public GameObject register;
@@ -126,8 +124,9 @@ public class LoginRegister : MonoBehaviour {
         string pass = GameObject.Find("LoginPass").GetComponent<InputField>().text;
 
         string data = JsonUtility.ToJson(new LoginJSON(username, pass));
+        //Debug.Log(JsonUtility.ToJson(new LoginJSON(username, pass)) + " | " + JsonUtility.ToJson(new LoginJSON(username, pass)).GetType());
         //TODO Networking
-        NetworkManager.instance.GetComponent<NetworkManager>().UserLogin(new JSONObject(data));
+        NetworkManager.instance.GetComponent<NetworkManager>().UserLogin(data);
         //socket.Emit("user login", new JSONObject(data));
     }
 
@@ -144,7 +143,7 @@ public class LoginRegister : MonoBehaviour {
             string data = JsonUtility.ToJson(new RegisterJSON(username, mail, pass, pass2, sendMail));
             //TODO Networking
 
-            NetworkManager.instance.GetComponent<NetworkManager>().UserRegister(new JSONObject(data));
+            NetworkManager.instance.GetComponent<NetworkManager>().UserRegister(data);
             //socket.Emit("user register", new JSONObject(data));
 
 

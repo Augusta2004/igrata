@@ -53,9 +53,9 @@ public class BunnyController : MonoBehaviour {
         }
         else
         {
-            if(Time.time > bunnyHurtTime + 2)
+            if(Time.time > bunnyHurtTime + 3)
             {
-                SceneManager.LoadScene("BunnyRunTitle");
+                NetworkManager.instance.GetComponent<NetworkManager>().ChangeRoom("BunnyRunTitle");
             }
         }
     }
