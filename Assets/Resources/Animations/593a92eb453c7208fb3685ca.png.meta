@@ -1,45 +1,45 @@
 fileFormatVersion: 2
-guid: d5e6d210d968c9e42a62a30bd1236d62
-timeCreated: 1497260178
+guid: 745bcc01005c21f4c8dec7a00612b937
+timeCreated: 1499618288
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: gornishte3sprite_0
-    21300002: gornishte3sprite_1
-    21300004: gornishte3sprite_2
-    21300006: gornishte3sprite_3
-    21300008: gornishte3sprite_4
-    21300010: gornishte3sprite_5
-    21300012: gornishte3sprite_6
-    21300014: gornishte3sprite_7
-    21300016: gornishte3sprite_8
-    21300018: gornishte3sprite_9
-    21300020: gornishte3sprite_10
-    21300022: gornishte3sprite_11
-    21300024: gornishte3sprite_12
-    21300026: gornishte3sprite_13
-    21300028: gornishte3sprite_14
-    21300030: gornishte3sprite_15
-    21300032: gornishte3sprite_16
-    21300034: gornishte3sprite_17
-    21300036: gornishte3sprite_18
-    21300038: gornishte3sprite_19
-    21300040: gornishte3sprite_20
-    21300042: gornishte3sprite_21
-    21300044: gornishte3sprite_22
-    21300046: gornishte3sprite_23
-    21300048: gornishte3sprite_24
-    21300050: gornishte3sprite_25
-    21300052: gornishte3sprite_26
-    21300054: gornishte3sprite_27
-    21300056: gornishte3sprite_28
-    21300058: gornishte3sprite_29
-    21300060: gornishte3sprite_30
-    21300062: gornishte3sprite_31
-    21300064: gornishte3sprite_32
-    21300066: gornishte3sprite_33
-    21300068: gornishte3sprite_34
-    21300070: gornishte3sprite_35
+    21300000: 593a92eb453c7208fb3685ca_0
+    21300002: 593a92eb453c7208fb3685ca_1
+    21300004: 593a92eb453c7208fb3685ca_2
+    21300006: 593a92eb453c7208fb3685ca_3
+    21300008: 593a92eb453c7208fb3685ca_4
+    21300010: 593a92eb453c7208fb3685ca_5
+    21300012: 593a92eb453c7208fb3685ca_6
+    21300014: 593a92eb453c7208fb3685ca_7
+    21300016: 593a92eb453c7208fb3685ca_8
+    21300018: 593a92eb453c7208fb3685ca_9
+    21300020: 593a92eb453c7208fb3685ca_10
+    21300022: 593a92eb453c7208fb3685ca_11
+    21300024: 593a92eb453c7208fb3685ca_12
+    21300026: 593a92eb453c7208fb3685ca_13
+    21300028: 593a92eb453c7208fb3685ca_14
+    21300030: 593a92eb453c7208fb3685ca_15
+    21300032: 593a92eb453c7208fb3685ca_16
+    21300034: 593a92eb453c7208fb3685ca_17
+    21300036: 593a92eb453c7208fb3685ca_18
+    21300038: 593a92eb453c7208fb3685ca_19
+    21300040: 593a92eb453c7208fb3685ca_20
+    21300042: 593a92eb453c7208fb3685ca_21
+    21300044: 593a92eb453c7208fb3685ca_22
+    21300046: 593a92eb453c7208fb3685ca_23
+    21300048: 593a92eb453c7208fb3685ca_24
+    21300050: 593a92eb453c7208fb3685ca_25
+    21300052: 593a92eb453c7208fb3685ca_26
+    21300054: 593a92eb453c7208fb3685ca_27
+    21300056: 593a92eb453c7208fb3685ca_28
+    21300058: 593a92eb453c7208fb3685ca_29
+    21300060: 593a92eb453c7208fb3685ca_30
+    21300062: 593a92eb453c7208fb3685ca_31
+    21300064: 593a92eb453c7208fb3685ca_32
+    21300066: 593a92eb453c7208fb3685ca_33
+    21300068: 593a92eb453c7208fb3685ca_34
+    21300070: 593a92eb453c7208fb3685ca_35
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -122,7 +122,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: gornishte3sprite_0
+      name: 593a92eb453c7208fb3685ca_0
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_1
+      name: 593a92eb453c7208fb3685ca_1
       rect:
         serializedVersion: 2
         x: 64
@@ -148,7 +148,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_2
+      name: 593a92eb453c7208fb3685ca_2
       rect:
         serializedVersion: 2
         x: 128
@@ -161,7 +161,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_3
+      name: 593a92eb453c7208fb3685ca_3
       rect:
         serializedVersion: 2
         x: 192
@@ -174,7 +174,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_4
+      name: 593a92eb453c7208fb3685ca_4
       rect:
         serializedVersion: 2
         x: 256
@@ -187,7 +187,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_5
+      name: 593a92eb453c7208fb3685ca_5
       rect:
         serializedVersion: 2
         x: 320
@@ -200,7 +200,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_6
+      name: 593a92eb453c7208fb3685ca_6
       rect:
         serializedVersion: 2
         x: 384
@@ -213,7 +213,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_7
+      name: 593a92eb453c7208fb3685ca_7
       rect:
         serializedVersion: 2
         x: 448
@@ -226,7 +226,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_8
+      name: 593a92eb453c7208fb3685ca_8
       rect:
         serializedVersion: 2
         x: 512
@@ -239,7 +239,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_9
+      name: 593a92eb453c7208fb3685ca_9
       rect:
         serializedVersion: 2
         x: 0
@@ -252,7 +252,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_10
+      name: 593a92eb453c7208fb3685ca_10
       rect:
         serializedVersion: 2
         x: 64
@@ -265,7 +265,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_11
+      name: 593a92eb453c7208fb3685ca_11
       rect:
         serializedVersion: 2
         x: 128
@@ -278,7 +278,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_12
+      name: 593a92eb453c7208fb3685ca_12
       rect:
         serializedVersion: 2
         x: 192
@@ -291,7 +291,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_13
+      name: 593a92eb453c7208fb3685ca_13
       rect:
         serializedVersion: 2
         x: 256
@@ -304,7 +304,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_14
+      name: 593a92eb453c7208fb3685ca_14
       rect:
         serializedVersion: 2
         x: 320
@@ -317,7 +317,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_15
+      name: 593a92eb453c7208fb3685ca_15
       rect:
         serializedVersion: 2
         x: 384
@@ -330,7 +330,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_16
+      name: 593a92eb453c7208fb3685ca_16
       rect:
         serializedVersion: 2
         x: 448
@@ -343,7 +343,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_17
+      name: 593a92eb453c7208fb3685ca_17
       rect:
         serializedVersion: 2
         x: 512
@@ -356,7 +356,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_18
+      name: 593a92eb453c7208fb3685ca_18
       rect:
         serializedVersion: 2
         x: 0
@@ -369,7 +369,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_19
+      name: 593a92eb453c7208fb3685ca_19
       rect:
         serializedVersion: 2
         x: 64
@@ -382,7 +382,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_20
+      name: 593a92eb453c7208fb3685ca_20
       rect:
         serializedVersion: 2
         x: 128
@@ -395,7 +395,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_21
+      name: 593a92eb453c7208fb3685ca_21
       rect:
         serializedVersion: 2
         x: 192
@@ -408,7 +408,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_22
+      name: 593a92eb453c7208fb3685ca_22
       rect:
         serializedVersion: 2
         x: 256
@@ -421,7 +421,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_23
+      name: 593a92eb453c7208fb3685ca_23
       rect:
         serializedVersion: 2
         x: 320
@@ -434,7 +434,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_24
+      name: 593a92eb453c7208fb3685ca_24
       rect:
         serializedVersion: 2
         x: 384
@@ -447,7 +447,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_25
+      name: 593a92eb453c7208fb3685ca_25
       rect:
         serializedVersion: 2
         x: 448
@@ -460,7 +460,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_26
+      name: 593a92eb453c7208fb3685ca_26
       rect:
         serializedVersion: 2
         x: 512
@@ -473,7 +473,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_27
+      name: 593a92eb453c7208fb3685ca_27
       rect:
         serializedVersion: 2
         x: 0
@@ -486,7 +486,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_28
+      name: 593a92eb453c7208fb3685ca_28
       rect:
         serializedVersion: 2
         x: 64
@@ -499,7 +499,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_29
+      name: 593a92eb453c7208fb3685ca_29
       rect:
         serializedVersion: 2
         x: 128
@@ -512,7 +512,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_30
+      name: 593a92eb453c7208fb3685ca_30
       rect:
         serializedVersion: 2
         x: 192
@@ -525,7 +525,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_31
+      name: 593a92eb453c7208fb3685ca_31
       rect:
         serializedVersion: 2
         x: 256
@@ -538,7 +538,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_32
+      name: 593a92eb453c7208fb3685ca_32
       rect:
         serializedVersion: 2
         x: 320
@@ -551,7 +551,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_33
+      name: 593a92eb453c7208fb3685ca_33
       rect:
         serializedVersion: 2
         x: 384
@@ -564,7 +564,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_34
+      name: 593a92eb453c7208fb3685ca_34
       rect:
         serializedVersion: 2
         x: 448
@@ -577,7 +577,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: gornishte3sprite_35
+      name: 593a92eb453c7208fb3685ca_35
       rect:
         serializedVersion: 2
         x: 512
@@ -592,5 +592,5 @@ TextureImporter:
     outline: []
   spritePackingTag: 
   userData: 
-  assetBundleName: body
-  assetBundleVariant: 3
+  assetBundleName: 
+  assetBundleVariant: 

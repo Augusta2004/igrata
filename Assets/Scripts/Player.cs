@@ -22,8 +22,6 @@ public class Player : MonoBehaviour
 
             playerCard.transform.GetChild(0).gameObject.SetActive(true);
             playerCardOC.transform.GetChild(0).gameObject.SetActive(false);
-            Debug.Log(playerCard.transform.GetChild(0));
-
 
             GameObject itemsHolder = GameObject.Find("PlayerCard")
                 .transform.Find("DragPlayerCard")
@@ -45,8 +43,6 @@ public class Player : MonoBehaviour
         }
         else
         {
-            Debug.Log("Other PC");
-
             GameObject.Find("PlayerCardOC")
                 .transform.Find("DragPlayerCard")
                 .transform.Find("PlayerCardHolder")
@@ -58,7 +54,6 @@ public class Player : MonoBehaviour
 
             playerCard.transform.GetChild(0).gameObject.SetActive(false);
             playerCardOC.transform.GetChild(0).gameObject.SetActive(true);
-            Debug.Log(playerCardOC.transform.GetChild(0));
             //TODO open other player card
         }
     }

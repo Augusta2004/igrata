@@ -27,7 +27,7 @@ public class NetworkManager : MonoBehaviour
 
     public static bool isServerAvailable = true;
     public static string localUsername;
-    private int localId;
+    private string localId;
 
 
     public static string sceneName;
@@ -50,18 +50,9 @@ public class NetworkManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    // Use this for initialization
     void Start()
     {
-        //subscription
-        //InitTimer();
-
-        
-        socket.On("user register", OnUserRegister);
         socket.On("user login", OnUserLogin);
-
-        
 
         socket.On("other player connected", OnOtherPlayerConnected);
         socket.On("play", OnPlay);
@@ -81,17 +72,10 @@ public class NetworkManager : MonoBehaviour
         socket.Connect();        
     }
 
-    public void LoginLink(bool onRegister = false)
+    public void LoginLink()
     {
-        if (onRegister)
-        {
-            GameObject.Find("Canvas").transform.Find("Login").transform.Find("RegisterSuccess").gameObject.SetActive(true);
-            GameObject.Find("Canvas").transform.Find("Register").gameObject.SetActive(false);
-        }
-
         GameObject.Find("Canvas").transform.Find("Login").gameObject.SetActive(true);
         GameObject.Find("Canvas").transform.Find("LoginLink").gameObject.SetActive(false);
-        GameObject.Find("Canvas").transform.Find("RegLink").gameObject.SetActive(false);
         GameObject.Find("Canvas").transform.Find("Back").gameObject.SetActive(true);
     }
     #region Commands
@@ -205,12 +189,12 @@ public class NetworkManager : MonoBehaviour
         PlayerChat("", emojiSprite);
     }
 
-    public void CollectItem(int id, string playerName)
+    public void CollectItem(string id, string playerName)
     {
         if (isServerAvailable && playerName == localUsername)
         {
-            socket.Emit("collect item", JsonUtility.ToJson(new IntToJSON(id)));
-            Debug.Log(JsonUtility.ToJson(new IntToJSON(id)));
+            socket.Emit("collect item", JsonUtility.ToJson(new StringToJSON(id)));
+            Debug.Log(JsonUtility.ToJson(new StringToJSON(id)));
             Debug.Log("You've tried to pick item with id: " + id + " USER - " + localUsername);
 
             isServerAvailable = false;
@@ -224,54 +208,31 @@ public class NetworkManager : MonoBehaviour
 
     public void GetOtherPlayerItems(String username)
     {
-        string data = JsonUtility.ToJson(new Player2JSON(19, username));
+        string data = JsonUtility.ToJson(new StringToJSON(username));
         socket.Emit("get other player items", data);
     }
 
-    public void ChangeItem(int id, string type)
+    public void ChangeItem(string id, string type)
     {
         string data = JsonUtility.ToJson(new ChangeItemJSON(id, type));
         socket.Emit("change item", data);
     }
 
-    public void BuyItem(int id)
+    public void BuyItem(string id)
     {
         if (isServerAvailable)
         {
-            socket.Emit("buy item", JsonUtility.ToJson(new IntToJSON(id)));
+            socket.Emit("buy item", JsonUtility.ToJson(new StringToJSON(id)));
 
             isServerAvailable = false;
         }
     }
 
-    public void RemoveItem(int id, string type)
+    public void RemoveItem(string id, string type)
     {
-        socket.Emit("remove item", JsonUtility.ToJson(new IntToJSON(id)));
-        Debug.Log(localUsername);
-        /*Debug.Log(GameObject.Find(localUsername)
-            .transform.Find("ItemHolder")
-            .transform.Find(type + "Sprite").GetComponent<SpriteRenderer>().sprite);*/
-
-        /*GameObject.Find(localUsername)
-            .transform.Find("ItemHolder")
-            .transform.Find(type + "Sprite")
-            .GetComponent<SpriteRenderer>().sprite = null;
-
-
-        Debug.Log(GameObject.Find(localUsername)
-            .transform.Find("ItemHolder")
-            .transform.Find(type + "Sprite").GetComponent<SpriteRenderer>().sprite);*/
+        socket.Emit("remove item", JsonUtility.ToJson(new StringToJSON(id)));
     }
    
-    
-    
-    
-    
-    
-    public void UserRegister(string data)
-    {
-        socket.Emit("user register", data);
-    }
 
     public void UserLogin(string data)
     {
@@ -299,32 +260,6 @@ public class NetworkManager : MonoBehaviour
     #endregion
     
     #region Listening
-    
-    void OnUserRegister(SocketIOEvent socketIOEvent)
-    {
-        string data = socketIOEvent.data.ToString();
-
-        ErrorJSON errorJSON = ErrorJSON.CreateFromJSON(data);
-
-        Debug.Log(errorJSON.errors.Length);
-
-        if (errorJSON.errors.Length > 0)
-        {
-            string errStr = "";
-            for (int i = 0; i < errorJSON.errors.Length; i++)
-            {
-                errStr += errorJSON.errors[i] + '\n';
-            }
-
-            GameObject.Find("Canvas").transform.Find("Register").transform.Find("RegErrors").GetComponent<Text>().text = errStr;
-        }
-        else
-        {
-            LoginLink(true);
-        }
-
-        isServerAvailable = true;
-    }
 
     void OnUserLogin(SocketIOEvent socketIOEvent)
     {
@@ -586,8 +521,9 @@ public class NetworkManager : MonoBehaviour
     void OnGetOtherPlayerItems(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data;
-
+        Debug.Log(data);
         string username = socketIOEvent.data.Split(':')[1].Split(',')[0];
+        Debug.Log(username);
         username = username.Substring(1, username.Length - 2);
 
         string itemsStr = socketIOEvent.data.Split(new string[] { "\"items\":" }, StringSplitOptions.None)[1];
@@ -595,7 +531,7 @@ public class NetworkManager : MonoBehaviour
 
 
         GameObject otherPlayer = GameObject.Find(username) as GameObject;
- 
+       
         otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
 
         GameObject item = GameObject.Find("PlayerCardOC")
@@ -642,7 +578,7 @@ public class NetworkManager : MonoBehaviour
         for (int i = 0; i < items.Length; i++)
         {            
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
-
+         
             string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
 
             GameObject item = GameObject.Find("PlayerCard")
@@ -663,10 +599,8 @@ public class NetworkManager : MonoBehaviour
 
             if (itemsJson.type != "pin" && itemsJson.type != "background")
             {
-                var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.picture + itemsJson.item_id + "sprite");
+                var subSprites = Resources.LoadAll<Sprite>("Animations/"  + itemsJson.item_id);
                 localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
-
-                //Debug.Log(localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type]);
             }
         }
         
@@ -678,8 +612,6 @@ public class NetworkManager : MonoBehaviour
             itemHolder.transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
             
         }
-
-        Debug.Log(localPlayer.GetComponent<CharacterController>().spritesArray.Count);
     }
     
     void OnGetOnOtherPlayerItems(SocketIOEvent socketIOEvent)
@@ -714,7 +646,7 @@ public class NetworkManager : MonoBehaviour
            
             if (itemsJson.type != "pin" && itemsJson.type != "background")
             {
-                var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.picture + itemsJson.item_id + "sprite");
+                var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.item_id);
                 Debug.Log(otherPlayer);
                 otherPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
                
@@ -809,9 +741,9 @@ public class NetworkManager : MonoBehaviour
     public class Player2JSON
     {
         public string name;
-        public int id;
+        public string id;
 
-        public Player2JSON(int _id, string _name)
+        public Player2JSON(string _id, string _name)
         {
             name = _name;
             id = _id;
@@ -884,10 +816,10 @@ public class NetworkManager : MonoBehaviour
     [Serializable]
     public class ChangeItemJSON
     {
-        public int id;
-        public String type;
+        public string id;
+        public string type;
 
-        public ChangeItemJSON(int _id, String _type)
+        public ChangeItemJSON(string _id, string _type)
         {
             id = _id;
             type = _type;
@@ -898,7 +830,7 @@ public class NetworkManager : MonoBehaviour
     public class ItemJSON
     {
         public string name;
-        public int id;
+        public string id;
 
         public static ItemJSON CreateFromJSON(string data)
         {
@@ -910,9 +842,9 @@ public class NetworkManager : MonoBehaviour
     [Serializable]
     public class PlayerItemsJSON
     {
-        public int _id;
+        public string _id;
         public int user_id;
-        public int item_id;
+        public string item_id;
         public string name;
         public string picture;
         public string type;
@@ -927,7 +859,7 @@ public class NetworkManager : MonoBehaviour
     [Serializable]
     public class UserJSON
     {
-        public int id;
+        public string id;
         public string name;
         public float[] position;
         public float[] animation;

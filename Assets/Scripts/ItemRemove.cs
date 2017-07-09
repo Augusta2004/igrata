@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ItemRemove : MonoBehaviour {
 
-    public int id;
+    public string id;
     public string type;
 
 	// Use this for initialization
@@ -23,8 +23,7 @@ public class ItemRemove : MonoBehaviour {
 
         NetworkManager.instance.GetComponent<NetworkManager>().RemoveItem(id, type);
 
-        id = 0;
-
+        id = null;
     }
 	
 }

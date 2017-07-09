@@ -5,7 +5,7 @@ using UnityEngine;
 public class DialogController : MonoBehaviour {
 
     [HideInInspector]
-    public int item_id;
+    public string item_id;
 
 
     public void ConfirmCollect()

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class Item : MonoBehaviour {
 
-    public int id;
+    public string id;
     public GameObject dialog;
 
     private bool isTriggered = false;

@@ -1,45 +1,45 @@
 fileFormatVersion: 2
-guid: fa4f88dd8eccdd440ae45280d04c8fca
-timeCreated: 1497377701
+guid: 06cb1558b686a0c41bbd48a3e25c9427
+timeCreated: 1499618297
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
-    21300000: boots4sprite_0
-    21300002: boots4sprite_1
-    21300004: boots4sprite_2
-    21300006: boots4sprite_3
-    21300008: boots4sprite_4
-    21300010: boots4sprite_5
-    21300012: boots4sprite_6
-    21300014: boots4sprite_7
-    21300016: boots4sprite_8
-    21300018: boots4sprite_9
-    21300020: boots4sprite_10
-    21300022: boots4sprite_11
-    21300024: boots4sprite_12
-    21300026: boots4sprite_13
-    21300028: boots4sprite_14
-    21300030: boots4sprite_15
-    21300032: boots4sprite_16
-    21300034: boots4sprite_17
-    21300036: boots4sprite_18
-    21300038: boots4sprite_19
-    21300040: boots4sprite_20
-    21300042: boots4sprite_21
-    21300044: boots4sprite_22
-    21300046: boots4sprite_23
-    21300048: boots4sprite_24
-    21300050: boots4sprite_25
-    21300052: boots4sprite_26
-    21300054: boots4sprite_27
-    21300056: boots4sprite_28
-    21300058: boots4sprite_29
-    21300060: boots4sprite_30
-    21300062: boots4sprite_31
-    21300064: boots4sprite_32
-    21300066: boots4sprite_33
-    21300068: boots4sprite_34
-    21300070: boots4sprite_35
+    21300000: 593a9255453c7208fb3685a0_0
+    21300002: 593a9255453c7208fb3685a0_1
+    21300004: 593a9255453c7208fb3685a0_2
+    21300006: 593a9255453c7208fb3685a0_3
+    21300008: 593a9255453c7208fb3685a0_4
+    21300010: 593a9255453c7208fb3685a0_5
+    21300012: 593a9255453c7208fb3685a0_6
+    21300014: 593a9255453c7208fb3685a0_7
+    21300016: 593a9255453c7208fb3685a0_8
+    21300018: 593a9255453c7208fb3685a0_9
+    21300020: 593a9255453c7208fb3685a0_10
+    21300022: 593a9255453c7208fb3685a0_11
+    21300024: 593a9255453c7208fb3685a0_12
+    21300026: 593a9255453c7208fb3685a0_13
+    21300028: 593a9255453c7208fb3685a0_14
+    21300030: 593a9255453c7208fb3685a0_15
+    21300032: 593a9255453c7208fb3685a0_16
+    21300034: 593a9255453c7208fb3685a0_17
+    21300036: 593a9255453c7208fb3685a0_18
+    21300038: 593a9255453c7208fb3685a0_19
+    21300040: 593a9255453c7208fb3685a0_20
+    21300042: 593a9255453c7208fb3685a0_21
+    21300044: 593a9255453c7208fb3685a0_22
+    21300046: 593a9255453c7208fb3685a0_23
+    21300048: 593a9255453c7208fb3685a0_24
+    21300050: 593a9255453c7208fb3685a0_25
+    21300052: 593a9255453c7208fb3685a0_26
+    21300054: 593a9255453c7208fb3685a0_27
+    21300056: 593a9255453c7208fb3685a0_28
+    21300058: 593a9255453c7208fb3685a0_29
+    21300060: 593a9255453c7208fb3685a0_30
+    21300062: 593a9255453c7208fb3685a0_31
+    21300064: 593a9255453c7208fb3685a0_32
+    21300066: 593a9255453c7208fb3685a0_33
+    21300068: 593a9255453c7208fb3685a0_34
+    21300070: 593a9255453c7208fb3685a0_35
   serializedVersion: 4
   mipmaps:
     mipMapMode: 0
@@ -122,7 +122,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: boots4sprite_0
+      name: 593a9255453c7208fb3685a0_0
       rect:
         serializedVersion: 2
         x: 0
@@ -135,7 +135,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_1
+      name: 593a9255453c7208fb3685a0_1
       rect:
         serializedVersion: 2
         x: 64
@@ -148,7 +148,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_2
+      name: 593a9255453c7208fb3685a0_2
       rect:
         serializedVersion: 2
         x: 128
@@ -161,7 +161,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_3
+      name: 593a9255453c7208fb3685a0_3
       rect:
         serializedVersion: 2
         x: 192
@@ -174,7 +174,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_4
+      name: 593a9255453c7208fb3685a0_4
       rect:
         serializedVersion: 2
         x: 256
@@ -187,7 +187,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_5
+      name: 593a9255453c7208fb3685a0_5
       rect:
         serializedVersion: 2
         x: 320
@@ -200,7 +200,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_6
+      name: 593a9255453c7208fb3685a0_6
       rect:
         serializedVersion: 2
         x: 384
@@ -213,7 +213,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_7
+      name: 593a9255453c7208fb3685a0_7
       rect:
         serializedVersion: 2
         x: 448
@@ -226,7 +226,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_8
+      name: 593a9255453c7208fb3685a0_8
       rect:
         serializedVersion: 2
         x: 512
@@ -239,7 +239,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_9
+      name: 593a9255453c7208fb3685a0_9
       rect:
         serializedVersion: 2
         x: 0
@@ -252,7 +252,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_10
+      name: 593a9255453c7208fb3685a0_10
       rect:
         serializedVersion: 2
         x: 64
@@ -265,7 +265,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_11
+      name: 593a9255453c7208fb3685a0_11
       rect:
         serializedVersion: 2
         x: 128
@@ -278,7 +278,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_12
+      name: 593a9255453c7208fb3685a0_12
       rect:
         serializedVersion: 2
         x: 192
@@ -291,7 +291,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_13
+      name: 593a9255453c7208fb3685a0_13
       rect:
         serializedVersion: 2
         x: 256
@@ -304,7 +304,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_14
+      name: 593a9255453c7208fb3685a0_14
       rect:
         serializedVersion: 2
         x: 320
@@ -317,7 +317,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_15
+      name: 593a9255453c7208fb3685a0_15
       rect:
         serializedVersion: 2
         x: 384
@@ -330,7 +330,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_16
+      name: 593a9255453c7208fb3685a0_16
       rect:
         serializedVersion: 2
         x: 448
@@ -343,7 +343,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_17
+      name: 593a9255453c7208fb3685a0_17
       rect:
         serializedVersion: 2
         x: 512
@@ -356,7 +356,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_18
+      name: 593a9255453c7208fb3685a0_18
       rect:
         serializedVersion: 2
         x: 0
@@ -369,7 +369,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_19
+      name: 593a9255453c7208fb3685a0_19
       rect:
         serializedVersion: 2
         x: 64
@@ -382,7 +382,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_20
+      name: 593a9255453c7208fb3685a0_20
       rect:
         serializedVersion: 2
         x: 128
@@ -395,7 +395,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_21
+      name: 593a9255453c7208fb3685a0_21
       rect:
         serializedVersion: 2
         x: 192
@@ -408,7 +408,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_22
+      name: 593a9255453c7208fb3685a0_22
       rect:
         serializedVersion: 2
         x: 256
@@ -421,7 +421,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_23
+      name: 593a9255453c7208fb3685a0_23
       rect:
         serializedVersion: 2
         x: 320
@@ -434,7 +434,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_24
+      name: 593a9255453c7208fb3685a0_24
       rect:
         serializedVersion: 2
         x: 384
@@ -447,7 +447,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_25
+      name: 593a9255453c7208fb3685a0_25
       rect:
         serializedVersion: 2
         x: 448
@@ -460,7 +460,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_26
+      name: 593a9255453c7208fb3685a0_26
       rect:
         serializedVersion: 2
         x: 512
@@ -473,7 +473,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_27
+      name: 593a9255453c7208fb3685a0_27
       rect:
         serializedVersion: 2
         x: 0
@@ -486,7 +486,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_28
+      name: 593a9255453c7208fb3685a0_28
       rect:
         serializedVersion: 2
         x: 64
@@ -499,7 +499,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_29
+      name: 593a9255453c7208fb3685a0_29
       rect:
         serializedVersion: 2
         x: 128
@@ -512,7 +512,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_30
+      name: 593a9255453c7208fb3685a0_30
       rect:
         serializedVersion: 2
         x: 192
@@ -525,7 +525,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_31
+      name: 593a9255453c7208fb3685a0_31
       rect:
         serializedVersion: 2
         x: 256
@@ -538,7 +538,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_32
+      name: 593a9255453c7208fb3685a0_32
       rect:
         serializedVersion: 2
         x: 320
@@ -551,7 +551,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_33
+      name: 593a9255453c7208fb3685a0_33
       rect:
         serializedVersion: 2
         x: 384
@@ -564,7 +564,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_34
+      name: 593a9255453c7208fb3685a0_34
       rect:
         serializedVersion: 2
         x: 448
@@ -577,7 +577,7 @@ TextureImporter:
       outline: []
       tessellationDetail: 0
     - serializedVersion: 2
-      name: boots4sprite_35
+      name: 593a9255453c7208fb3685a0_35
       rect:
         serializedVersion: 2
         x: 512
@@ -592,5 +592,5 @@ TextureImporter:
     outline: []
   spritePackingTag: 
   userData: 
-  assetBundleName: boots
-  assetBundleVariant: 4
+  assetBundleName: 
+  assetBundleVariant: 
