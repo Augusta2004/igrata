@@ -27,9 +27,12 @@ public class Item : MonoBehaviour {
     {
         if (this.gameObject.CompareTag("Buy"))
         {
+            Debug.Log("GONNA BUY THIS SHIT");
+
             dialog.SetActive(true);
             dialog.GetComponent<DialogController>().item_id = id;
-            dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(true);
+            dialog.transform.Find("Canvas").transform.Find("YesBuy").gameObject.SetActive(true);
+            dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(false);
             dialog.transform.Find("Canvas").transform.Find("Cancel").gameObject.SetActive(true);
             dialog.transform.Find("Canvas").transform.Find("OK").gameObject.SetActive(false);
 
@@ -48,6 +51,7 @@ public class Item : MonoBehaviour {
         dialog.SetActive(true);
         dialog.GetComponent<DialogController>().item_id = id;
         dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(true);
+        dialog.transform.Find("Canvas").transform.Find("YesBuy").gameObject.SetActive(false);
         dialog.transform.Find("Canvas").transform.Find("Cancel").gameObject.SetActive(true);
         dialog.transform.Find("Canvas").transform.Find("OK").gameObject.SetActive(false);
 

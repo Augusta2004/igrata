@@ -17,7 +17,7 @@ public class BunnyController : MonoBehaviour {
 
     private float startTime;
 
-    private int jumpsLeft = 2;
+    private int jumpsLeft = 1;
 
 
     void Start ()
@@ -44,7 +44,15 @@ public class BunnyController : MonoBehaviour {
                     rb.velocity = Vector2.zero;
                 }
 
-                rb.AddForce(transform.up * jumpForce);
+               // if (jumpsLeft == 1)
+               // {
+                    //rb.AddForce(transform.up * jumpForce * 0.5f);
+               // }
+               // else
+                {
+                    rb.AddForce(transform.up * jumpForce);
+                }
+                
                 jumpsLeft--;
             }
 
@@ -76,8 +84,7 @@ public class BunnyController : MonoBehaviour {
 
             bunnyHurtTime = Time.time;
             myAnim.SetBool("bunnyHurt", true);
-            Debug.Log("Game Over");
-            //game over
+
             double fish = Math.Ceiling(Convert.ToDouble(scoreText.text));
             NetworkManager.instance.GetComponent<NetworkManager>().AddFish(Convert.ToInt32(fish));
 
@@ -85,7 +92,7 @@ public class BunnyController : MonoBehaviour {
 
         if (collision.collider.gameObject.layer == LayerMask.NameToLayer("Ground"))
         {
-            jumpsLeft = 2;
+            jumpsLeft = 1;
         }
     }
 }

@@ -8,7 +8,7 @@ public class PrefabSpawner : MonoBehaviour
     private float nextSpawn = 0;
     public Transform prefabToSpawn;
     public float spawnRate = 1;
-    public float randomDelay = 1;
+    public float randomDelay = 2;
 
     // Use this for initialization
     void Start()

@@ -171,7 +171,7 @@ public class NetworkManager : MonoBehaviour
 
     public void StopAnimation(int numAnimation)
     {
-        socket.Emit("player stop animation", JsonUtility.ToJson(numAnimation));
+        socket.Emit("player stop animation", JsonUtility.ToJson(new IntToJSON(numAnimation)));
     }
 
     public void PlayerChat(String message, String emojiPath)
@@ -222,6 +222,7 @@ public class NetworkManager : MonoBehaviour
     {
         if (isServerAvailable)
         {
+            Debug.Log("BUYYYYYYYYYYYYYY");
             socket.Emit("buy item", JsonUtility.ToJson(new StringToJSON(id)));
 
             isServerAvailable = false;
@@ -393,8 +394,7 @@ public class NetworkManager : MonoBehaviour
        
         p.GetComponent<Animator>().SetBool("isWalking", false);
         p.GetComponent<Animator>().Play("Idle");
-
-
+        
         var sprArr = p.GetComponent<CharacterController>().spritesArray;
         foreach (KeyValuePair<string, Sprite[]> entry in sprArr)
         {
@@ -659,7 +659,16 @@ public class NetworkManager : MonoBehaviour
     
     void OnBuyItem(SocketIOEvent socketIOEvent)
     {
-        Debug.Log(socketIOEvent);
+        string data = socketIOEvent.data.ToString();
+        Debug.Log(data);
+        ErrorJSON errorJSON = ErrorJSON.CreateFromJSON(data);
+        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("Canvas").gameObject;
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = errorJSON.errors[0];
+
+        itemDialogCanvas.transform.Find("YesBuy").gameObject.SetActive(false);
+        itemDialogCanvas.transform.Find("Cancel").gameObject.SetActive(false);
+        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
+
         isServerAvailable = true;
     }
 
