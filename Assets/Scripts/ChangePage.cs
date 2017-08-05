@@ -5,11 +5,10 @@ using UnityEngine;
 
 public class ChangePage : MonoBehaviour {
 
-    public GameObject Newspaper;
+    public GameObject NewspaperHolder;
     public GameObject PrevPage;
     public GameObject NextPage;
-    public GameObject Link1;
-    public GameObject Link2;
+    public GameObject Links;
 
     public int GoToPage;
 
@@ -17,14 +16,16 @@ public class ChangePage : MonoBehaviour {
 
     private void OnMouseDown()
     {
-        
         if(this.gameObject.name == "Close")
         {
-            Newspaper.SetActive(false);
+            NewspaperHolder.SetActive(false);
+            NextPage.SetActive(true);
+            PrevPage.SetActive(false);
+            Links.SetActive(true);
         }
         else
         {
-            string pagename = Newspaper.GetComponent<SpriteRenderer>().sprite.ToString().Split(' ')[0];
+            string pagename = NewspaperHolder.GetComponent<SpriteRenderer>().sprite.ToString().Split(' ')[0];
             int num = Int32.Parse(pagename.Substring(pagename.Length - 1));
 
             if (this.gameObject.name == "PrevPage")
@@ -33,8 +34,7 @@ public class ChangePage : MonoBehaviour {
                 if (num == 1)
                 {
                     this.gameObject.SetActive(false);
-                    Link1.SetActive(true);
-                    Link2.SetActive(true);
+                    Links.SetActive(true);
                 }
 
                 NextPage.SetActive(true);
@@ -56,14 +56,13 @@ public class ChangePage : MonoBehaviour {
                 }
 
                 PrevPage.SetActive(true);
-                Link1.SetActive(false);
-                Link2.SetActive(false);
+                Links.SetActive(false);
             }
 
             pagename = "newspaperpage" + num;
 
             Sprite spr = Resources.Load<Sprite>("Sprites/Newspaper/" + pagename);
-            Newspaper.GetComponent<SpriteRenderer>().sprite = spr;
+            NewspaperHolder.GetComponent<SpriteRenderer>().sprite = spr;
         }
     }
 }

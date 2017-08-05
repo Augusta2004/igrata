@@ -3,32 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class Item : MonoBehaviour {
+public class Item : MonoBehaviour
+{
 
     public string id;
-    public GameObject dialog;
+    private GameObject dialog;
+    public bool isForCollect = false;
 
     private bool isTriggered = false;
 
+    public bool collectOnClick = false;
+    private bool collectOnMove = false;
+
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (!isTriggered 
+        if (!isTriggered
             && this.gameObject.CompareTag("Walk")
             && other.gameObject.CompareTag("Player"))
         {
-            if(other.gameObject.name == NetworkManager.localUsername)
+            if (other.gameObject.name == NetworkManager.localUsername)
             {
-                CollectItem();
+                Debug.Log("Collide without click");
+
+                if (collectOnMove)
+                {
+                    Debug.Log("Collect on move");
+                    CollectItem();
+                    collectOnMove = false;
+                }
             }
         }
     }
 
     private void OnMouseDown()
     {
-        if (this.gameObject.CompareTag("Buy"))
+        if (!isForCollect)
         {
             Debug.Log("GONNA BUY THIS SHIT");
-
+            dialog = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").gameObject;
             dialog.SetActive(true);
             dialog.GetComponent<DialogController>().item_id = id;
             dialog.transform.Find("Canvas").transform.Find("YesBuy").gameObject.SetActive(true);
@@ -38,9 +50,19 @@ public class Item : MonoBehaviour {
 
             dialog.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = "Buy this item?";
         }
-        else if(!this.gameObject.CompareTag("Walk"))
+        else if (!this.gameObject.CompareTag("Walk"))
         {
-            CollectItem();
+            Debug.Log("Click");
+            if (collectOnClick)
+            {
+                Debug.Log("Collect on click");
+                CollectItem();
+            }
+        }
+        else
+        {
+            Debug.Log("Set collect on move");
+            collectOnMove = true;
         }
     }
 
@@ -48,6 +70,7 @@ public class Item : MonoBehaviour {
     {
         Debug.Log("collect item");
 
+        dialog = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").gameObject;
         dialog.SetActive(true);
         dialog.GetComponent<DialogController>().item_id = id;
         dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(true);
@@ -64,11 +87,4 @@ public class Item : MonoBehaviour {
     {
         isTriggered = false;
     }
-
-    /*
-    void OnMouseDown()
-    {
-        NetworkManager.instance.GetComponent<NetworkManager>().CollectItem(id);
-    }
-    */
 }

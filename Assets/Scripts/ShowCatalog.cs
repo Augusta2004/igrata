@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class ShowCatalog : MonoBehaviour
-{
-
-    public GameObject Catalog;
-    
+{    
     void OnMouseDown()
-    {
-        Catalog.SetActive(true);
+    {        
+        if (GameObject.Find("Catalog") == null)
+        {
+            NetworkManager.instance.GetComponent<NetworkManager>().LoadAssetBundles("Catalog/", false, "catalog", false);
+        }
+        else
+        {
+            GameObject catalog = GameObject.Find("Catalog").transform.Find("CatalogHolder").gameObject;
+
+            catalog.SetActive(!catalog.activeSelf);
+        }
     }
 }

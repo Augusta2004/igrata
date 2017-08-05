@@ -12,12 +12,19 @@ public class ItemRemove : MonoBehaviour {
     {
         this.GetComponent<SpriteRenderer>().sprite = null;
         Destroy(this.GetComponent<PolygonCollider2D>());
-
-        GameObject.Find("PlayerCard")
+        
+        if (GameObject.Find("PlayerCard")
+                .transform.Find("DragPlayerCard")
+                .transform.Find("PlayerCardHolder")
+                .transform.Find("ItemsHolder")
+                .transform.Find("Item " + id) != null)
+        {
+            GameObject.Find("PlayerCard")
                 .transform.Find("DragPlayerCard")
                 .transform.Find("PlayerCardHolder")
                 .transform.Find("ItemsHolder")
                 .transform.Find("Item " + id).GetComponent<ClickItem>().item_on = false;
+        }
         
         
 

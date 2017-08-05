@@ -19,8 +19,10 @@ public class ClosePlayerCard : MonoBehaviour {
             showItems.transform.position = new Vector2(showItems.transform.position.x - x, showItems.transform.position.y);
         }
         itemsHolder.SetActive(false);
-        
-        
+
+        playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").transform.Find("SortHolder").gameObject.SetActive(false);
+
+
 
         GameObject playerCardOC = GameObject.Find("PlayerCardOC") as GameObject;
         playerCardOC.transform.GetChild(0).gameObject.SetActive(false);

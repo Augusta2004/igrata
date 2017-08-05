@@ -1,19 +1,7 @@
 ManifestFileVersion: 0
-CRC: 3482871818
+CRC: 2914176240
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: boots.4
-      Dependencies: {}
-    Info_1:
-      Name: pins.5
-      Dependencies: {}
-    Info_2:
-      Name: body.3
-      Dependencies: {}
-    Info_3:
-      Name: hat.2
-      Dependencies: {}
-    Info_4:
-      Name: pins.1
+      Name: room2
       Dependencies: {}

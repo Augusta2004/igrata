@@ -13,9 +13,8 @@ public class NetworkManager : MonoBehaviour
 {
 
     public static NetworkManager instance;
-    public Canvas canvas;
     public SocketIOController socket;
-    private string playerNameInput;  //Later should take data from login form  //DB
+    private string playerNameInput; 
     public GameObject player;
 
     public static int fish;
@@ -28,7 +27,7 @@ public class NetworkManager : MonoBehaviour
     public static bool isServerAvailable = true;
     public static string localUsername;
     private string localId;
-
+    public static string serverName;
 
     public static string sceneName;
     public static bool isLogging = true;
@@ -37,6 +36,9 @@ public class NetworkManager : MonoBehaviour
     public static bool playerLoaded = false;
 
     private Timer myTimer;
+
+    public static int itemsCount;
+    public static int itemsPage = 1;
 
     private void Awake()
     {
@@ -55,12 +57,19 @@ public class NetworkManager : MonoBehaviour
         socket.On("user login", OnUserLogin);
 
         socket.On("other player connected", OnOtherPlayerConnected);
+        socket.On("get friend status", OnGetFriendStatus);
+        socket.On("show friends", OnShowFriends);
+        socket.On("show requests", OnShowRequests);
+        socket.On("update friend list", OnUpdateFriendList);
+        socket.On("update requests", OnUpdateRequests);
+        socket.On("handle friend", OnHandleFriend);
         socket.On("play", OnPlay);
         socket.On("player move", OnPlayerMove);
         socket.On("player stop animation", OnPlayerStopAnimation);
         socket.On("player chat", OnPlayerChat);
         socket.On("collect item", OnCollectItem);
         socket.On("get player items", OnGetPlayerItems);
+        socket.On("get player items count", OnGetPlayerItemsCount);
         socket.On("get other player items", OnGetOtherPlayerItems);
         socket.On("get on items", OnGetOnItems);
         socket.On("get on other player items", OnGetOnOtherPlayerItems);
@@ -68,42 +77,24 @@ public class NetworkManager : MonoBehaviour
         socket.On("player change room", OnPlayerChangeRoom);
         socket.On("players loaded", OnPlayersLoaded);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
-        
+
         socket.Connect();        
     }
-
+    
     public void LoginLink()
     {
         GameObject.Find("Canvas").transform.Find("Login").gameObject.SetActive(true);
         GameObject.Find("Canvas").transform.Find("LoginLink").gameObject.SetActive(false);
         GameObject.Find("Canvas").transform.Find("Back").gameObject.SetActive(true);
     }
+   
     #region Commands
 
     public void ConnectToServer()
     {
         StartCoroutine(OuterIEnumerator());
     }
-    
-    /*
-    public void InitTimer()
-    {
-        myTimer = new System.Timers.Timer();
-        myTimer.Elapsed += new ElapsedEventHandler(CheckServer);
-        myTimer.Interval = 500;     
-        myTimer.Enabled = true;
-    }
-
-    private void CheckServer(object source, ElapsedEventArgs e)
-    {
-    }
-    */
-
-
-
-
-
-    
+        
     IEnumerator OuterIEnumerator()
     {
         yield return StartCoroutine(ConnectToServerCR());
@@ -119,48 +110,19 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("player connect");
         yield return new WaitForSeconds(1f);
 
-        //int rnd = UnityEngine.Random.Range(0, 100);
-
         string playerName = localUsername;
         playerNameInput = playerName;
-        List<SpawnPoint> playerSpawnPoints = GetComponent<PlayerSpawner>().playerSpawnPoints;
-        PlayerJSON playerJSON = new PlayerJSON(playerName, playerSpawnPoints);
+        
+        yield return StartCoroutine(DownloadObject("SpawnPoints/", false, sceneName.ToLower(), false));
+
+        GameObject spawnPoint = GameObject.Find(sceneName).gameObject;
+
+        PlayerJSON playerJSON = new PlayerJSON(playerName, spawnPoint);
         string data = JsonUtility.ToJson(playerJSON);
 
         socket.Emit("play", data);
-        Debug.Log(data);
     }
-
-    IEnumerator DownloadAsset(string BundleURL, string AssetName, int version)
-    {
-        // Wait for the Caching system to be ready
-        while (!Caching.ready) yield return null;
-
-        // Load the AssetBundle file from Cache if it exists with the same version or download and store it in the cache
-        using (WWW www = WWW.LoadFromCacheOrDownload(BundleURL, version))
-        {
-            Debug.Log(www);
-            yield return www;
-            if (www.error != null)
-                throw new Exception("WWW download had an error:" + www.error);
-
-            AssetBundle bundle = www.assetBundle;
-
-            if (AssetName == "")
-            {
-                Instantiate(bundle.mainAsset);
-            }
-            else
-            {
-                Sprite sprite = bundle.LoadAsset<Sprite>(AssetName);
-                Debug.Log(sprite);
-                yield return sprite;
-            }
-
-            bundle.Unload(false);
-        }
-    }
-
+   
     public void CommandMove(Vector2 vec2, Vector2 anim, int numAnimation)
     {
         string data = JsonUtility.ToJson(new AnimationPositionJSON(vec2, anim, numAnimation));
@@ -201,9 +163,28 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void GetPlayerItems()
+    public void GetPlayerItems(int page, string type)
     {
-        socket.Emit("get player items");
+        if (type == null)
+        {
+            socket.Emit("get player items", JsonUtility.ToJson(new IntToJSON(page)));
+        }
+        else
+        {
+            socket.Emit("get player items by type", JsonUtility.ToJson(new StringIntToJSON(page, type)));
+        }
+    }
+
+    public void GetPlayerItemsCount(string type)
+    {
+        if(type == null)
+        {
+            socket.Emit("get player items count");
+        }
+        else
+        {
+            socket.Emit("get player items count by type", JsonUtility.ToJson(new StringToJSON(type)));
+        }
     }
 
     public void GetOtherPlayerItems(String username)
@@ -234,7 +215,6 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("remove item", JsonUtility.ToJson(new StringToJSON(id)));
     }
    
-
     public void UserLogin(string data)
     {
         Debug.Log(data);
@@ -258,8 +238,42 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("add fish", JsonUtility.ToJson(new IntToJSON(addFish)));
     }
 
+    public void SendFriendRequest(string user_id)
+    {
+        Debug.Log("You sent a friend list to user with ID " + user_id);
+        socket.Emit("friend request", JsonUtility.ToJson(new StringToJSON(user_id)));
+    }
+
+    public void RemoveFriend(string user_id)
+    {
+        Debug.Log("You are about to remove user with ID " + user_id + " from your friend list");
+        socket.Emit("remove friend", JsonUtility.ToJson(new StringToJSON(user_id)));
+    }
+
+    public void ShowFriends()
+    {
+        Debug.Log("Show friends from SERVER");
+        socket.Emit("show friends");
+    }
+
+    public void ShowRequests()
+    {
+        Debug.Log("Show requests from SERVER");
+        socket.Emit("show requests");
+    }
+
+    public void CheckForRequestUpdate()
+    {
+        socket.Emit("check request update");
+    }
+
+    public void HandleRequest(string requestUserID, bool acceptRequest)
+    {
+        socket.Emit("handle request", JsonUtility.ToJson(new HandleRequestJSON(requestUserID, acceptRequest)));
+    }
+
     #endregion
-    
+
     #region Listening
 
     void OnUserLogin(SocketIOEvent socketIOEvent)
@@ -294,6 +308,7 @@ public class NetworkManager : MonoBehaviour
     {
         print("Someone else connected");
         string data = socketIOEvent.data.ToString();
+        Debug.Log(data);
 
         UserJSON userJSON = UserJSON.CreateFromJSON(data);
         Vector2 position = new Vector2(userJSON.position[0], userJSON.position[1]);
@@ -310,10 +325,14 @@ public class NetworkManager : MonoBehaviour
         playerName.text = userJSON.name;
         pc.isLocalPlayer = false;
         p.name = userJSON.name;
-        
+
+        Player playerScript = p.GetComponent<Player>();
+        playerScript.user_id = userJSON.id;
+
         string dataUser = JsonUtility.ToJson(new ChangeItemJSON(userJSON.id, userJSON.name));
        
         socket.Emit("get on other player items", dataUser);
+        socket.Emit("get friend status", dataUser);
     }
 
     void OnPlay(SocketIOEvent socketIOEvent)
@@ -326,7 +345,7 @@ public class NetworkManager : MonoBehaviour
         localUsername = currentUserJSON.name;
         fish = currentUserJSON.fish;
         localId = currentUserJSON.id;
-
+        serverName = currentUserJSON.server;
         Vector2 position = new Vector2(currentUserJSON.position[0], currentUserJSON.position[1]);
         GameObject p = Instantiate(player, position, Quaternion.identity) as GameObject;
 
@@ -471,7 +490,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data.ToString();
         ItemJSON itemJSON = ItemJSON.CreateFromJSON(data);
 
-        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("Canvas").gameObject;
+        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").transform.Find("Canvas").gameObject;
         itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = itemJSON.name;
 
         itemDialogCanvas.transform.Find("Yes").gameObject.SetActive(false);
@@ -485,10 +504,9 @@ public class NetworkManager : MonoBehaviour
     {
         string data = socketIOEvent.data;
         string[] items = StrToJsonArr(data);
-        Debug.Log(items.Length);
+
         for (int i = 0; i < items.Length; i++)
         {
-            //Debug.Log(items[i]);
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
 
             GameObject itemObject = Instantiate(item, new Vector2(0, 0), Quaternion.identity) as GameObject;
@@ -500,12 +518,12 @@ public class NetworkManager : MonoBehaviour
             itemObject.GetComponent<ClickItem>().type = itemsJson.type;
             itemObject.GetComponent<ClickItem>().path = itemsJson.picture;
 
-            string path = "Sprites/Items/" + itemsJson.picture;
-            itemObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(path);
+            //string path = "Sprites/Items/" + itemsJson.picture;
+            //itemObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(path);
 
-            itemObject.AddComponent<BoxCollider2D>();
-            itemObject.GetComponent<BoxCollider2D>().isTrigger = true;
-
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, itemObject, i.ToString());            
+            
+            /*
             GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
 
             float offset0 = i % 3;
@@ -515,7 +533,16 @@ public class NetworkManager : MonoBehaviour
             float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - itemObject.GetComponent<SpriteRenderer>().bounds.size.y * offset;
             itemObject.transform.position = new Vector2(x, y);
             itemObject.GetComponent<SpriteRenderer>().sortingOrder = 201;
+            */
         }
+    }
+
+    void OnGetPlayerItemsCount(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data;
+        IntToJSON item = IntToJSON.CreateFromJSON(data);
+
+        itemsCount = item.count;
     }
 
     void OnGetOtherPlayerItems(SocketIOEvent socketIOEvent)
@@ -523,7 +550,6 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data;
         Debug.Log(data);
         string username = socketIOEvent.data.Split(':')[1].Split(',')[0];
-        Debug.Log(username);
         username = username.Substring(1, username.Length - 2);
 
         string itemsStr = socketIOEvent.data.Split(new string[] { "\"items\":" }, StringSplitOptions.None)[1];
@@ -531,8 +557,11 @@ public class NetworkManager : MonoBehaviour
 
 
         GameObject otherPlayer = GameObject.Find(username) as GameObject;
-       
-        otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
+
+        if (otherPlayer != null)
+        {
+            otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
+        } 
 
         GameObject item = GameObject.Find("PlayerCardOC")
                     .transform.Find("DragPlayerCard")
@@ -552,8 +581,9 @@ public class NetworkManager : MonoBehaviour
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
 
             string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
-                        
-            item.transform.Find(type1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
+
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, username, item.transform.Find(type1).gameObject, "item on");
+            //item.transform.Find(type1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
         }
     }
 
@@ -591,16 +621,18 @@ public class NetworkManager : MonoBehaviour
             //Debug.Log(url);
            // StartCoroutine(DownloadAsset(url, itemsJson.picture + "PC", itemsJson.item_id));
 
-            item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
-            Destroy(item.GetComponent<PolygonCollider2D>());
-            item.AddComponent<PolygonCollider2D>().isTrigger = true;
+            //item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, item, "item on");
+            
             item.GetComponent<ItemRemove>().id = itemsJson.item_id;
             item.GetComponent<ItemRemove>().type = itemsJson.type;
 
             if (itemsJson.type != "pin" && itemsJson.type != "background")
             {
-                var subSprites = Resources.LoadAll<Sprite>("Animations/"  + itemsJson.item_id);
-                localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
+                //var subSprites = Resources.LoadAll<Sprite>("Animations/"  + itemsJson.item_id);
+               // localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
+
+                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, localUsername, localPlayer, itemsJson.type);
             }
         }
         
@@ -637,22 +669,16 @@ public class NetworkManager : MonoBehaviour
             child.GetComponent<SpriteRenderer>().sprite = null;
         }
 
-        string currentAnimation = otherPlayer.GetComponent<SpriteRenderer>().sprite.name;
-        int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
-
         for (int i = 0; i < items.Length; i++)
         {
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
            
             if (itemsJson.type != "pin" && itemsJson.type != "background")
             {
-                var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.item_id);
-                Debug.Log(otherPlayer);
-                otherPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
-               
-                otherPlayer.transform.Find("ItemHolder")
-                    .transform.Find(itemsJson.type + "Sprite")
-                    .GetComponent<SpriteRenderer>().sprite = subSprites[numAnimation];
+                //var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.item_id);
+               // otherPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
+
+                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, username, otherPlayer, itemsJson.type); 
             }
         }
     }
@@ -662,7 +688,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data.ToString();
         Debug.Log(data);
         ErrorJSON errorJSON = ErrorJSON.CreateFromJSON(data);
-        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("Canvas").gameObject;
+        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").transform.Find("Canvas").gameObject;
         itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = errorJSON.errors[0];
 
         itemDialogCanvas.transform.Find("YesBuy").gameObject.SetActive(false);
@@ -682,8 +708,108 @@ public class NetworkManager : MonoBehaviour
 
     void OnPlayersLoaded(SocketIOEvent socketIOEvent)
     {
-        Debug.Log("TRUEEEEEEEEEEEEEE WEeeeeeeeeeeeeee");
         otherPlayersLoaded = true;        
+    }
+
+    void OnHandleFriend(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        HandleFriendJSON friendStatus = HandleFriendJSON.CreateFromJSON(data);
+
+        if (friendStatus.playerUsername != "" && GameObject.Find(friendStatus.playerUsername) != null)
+        {
+            //TODO: show player card again
+            GameObject playerCardOC = GameObject.Find("PlayerCardOC").transform.Find("DragPlayerCard").gameObject;
+            Debug.Log(GameObject.Find(friendStatus.playerUsername));
+
+            if (playerCardOC.activeSelf)
+            {                
+                if (playerCardOC.transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").transform.Find("PlayerName").GetComponent<Text>().text == friendStatus.playerUsername)
+                {
+                    playerCardOC.SetActive(false);
+                    Player.instance.GetComponent<Player>().ShowOCPlayerCard(friendStatus.playerUsername, friendStatus.addFriend, friendStatus.playerId);
+
+                    Debug.Log(friendStatus.playerId);
+                }
+            }
+
+            if (friendStatus.addFriend)
+            {
+                GameObject.Find(friendStatus.playerUsername).GetComponent<Player>().isFriend = true;
+            }
+            else
+            {
+                GameObject.Find(friendStatus.playerUsername).GetComponent<Player>().isFriend = false;
+            }
+
+        }
+
+        Debug.Log("ADD NEW FRIEND");
+    }
+
+    void OnGetFriendStatus(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        FriendStatusJSON friendStatus = FriendStatusJSON.CreateFromJSON(data);
+       
+        GameObject player = GameObject.Find(friendStatus.username);
+        Player playerScript = player.GetComponent<Player>();
+        playerScript.isFriend = friendStatus.isFriend;
+    }
+
+    void OnShowFriends(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        
+        string[] friends = StrToJsonArr(data);
+        
+        FriendsController.instance.GetComponent<FriendsController>().ShowFriends(friends);
+    }
+
+    void OnShowRequests(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        string[] requests = StrToJsonArr(data);
+        Debug.Log("OnShowRequests");
+        FriendsController.instance.GetComponent<FriendsController>().ShowRequests(requests);
+    }
+
+    void OnUpdateFriendList(SocketIOEvent socketIOEvent) //A friend has logged in/out
+    {
+        Debug.Log("nekoi priatel se vurza kum igrata");
+    
+        bool isFriendlistActive = GameObject.Find("Friendlist").transform.Find("Holder").transform.Find("FriendlistHolder").gameObject.activeSelf;
+        if (isFriendlistActive)
+        {
+            FriendsController.updateFriendList = true;
+            ShowFriends();
+        }
+        else
+        {
+            FriendsController.updateFriendList = true;
+        }
+    }
+
+    void OnUpdateRequests(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        string[] requests = StrToJsonArr(data);
+
+        bool isRequestsActive = GameObject.Find("Friendlist").transform.Find("Holder").transform.Find("FriendRequestHolder").gameObject.activeSelf;
+        if (isRequestsActive)
+        {
+            FriendsController.updateFriendRequests = true;
+            FriendsController.instance.GetComponent<FriendsController>().ShowRequests(requests);
+        }
+        else
+        {
+            FriendsController.updateFriendRequests = true;
+            //Show them, that you've got 1 new request
+        }
     }
 
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
@@ -696,13 +822,98 @@ public class NetworkManager : MonoBehaviour
     #endregion
 
     #region Miscelanieous
+
+    public void LoadAssetBundles(string assetFolder, bool isSprite, string assetBundleName, bool isPC, string username = null, GameObject obj = null, string itemType = null)
+    {
+        StartCoroutine(DownloadObject(assetFolder, isSprite, assetBundleName, isPC, username, obj, itemType));
+    }
+
+    IEnumerator DownloadObject(string assetFolder, bool isSprite, string assetBundleName, bool isPC, string username = null, GameObject obj = null, string itemType = null)
+    {
+        //string path = "file:///D:/UnityProjects/The Game/server/server/public/Assets/" + assetBundleName;
+        string path = "http://localhost:3000/Assets/" + assetFolder + assetBundleName;
+        WWW www = WWW.LoadFromCacheOrDownload(path, 1);
+     
+        yield return www;
+
+        AssetBundle bundle = www.assetBundle;
+
+        if(isSprite)
+        {
+            Sprite[] spriteSheet = bundle.LoadAssetWithSubAssets<Sprite>(assetBundleName);            
+
+            if(isPC)
+            {
+                if(itemType == "item on")
+                {
+                    obj.GetComponent<SpriteRenderer>().sprite = spriteSheet[0];
+
+                    Destroy(obj.GetComponent<PolygonCollider2D>());
+                    obj.AddComponent<PolygonCollider2D>().isTrigger = true;
+                }
+                else
+                {
+                    obj.GetComponent<SpriteRenderer>().sprite = spriteSheet[1];
+
+                    obj.AddComponent<BoxCollider2D>();
+                    obj.GetComponent<BoxCollider2D>().isTrigger = true;
+
+
+                    GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
+
+                    int i = Convert.ToInt16(itemType);
+
+                    float offset0 = i % 3;
+                    float x = itemsHolder.transform.position.x - itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x / 2 + (1 + 1.25f * offset0) * obj.GetComponent<SpriteRenderer>().bounds.size.x;
+
+                    int offset = i / 3 + 1;
+                    float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - obj.GetComponent<SpriteRenderer>().bounds.size.y * offset;
+                    obj.transform.position = new Vector2(x, y);
+                    obj.GetComponent<SpriteRenderer>().sortingOrder = 201;
+                }
+                
+            }
+            else
+            {
+                obj.GetComponent<CharacterController>().spritesArray[itemType] = spriteSheet;
+
+                if(username != localUsername)
+                {
+                    string currentAnimation = obj.GetComponent<SpriteRenderer>().sprite.name;
+                    int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
+
+                    obj.transform.Find("ItemHolder")
+                    .transform.Find(itemType + "Sprite")
+                    .GetComponent<SpriteRenderer>().sprite = spriteSheet[numAnimation];
+                }
+            }
+
+            bundle.Unload(false);
+            yield return spriteSheet;
+        }
+        else
+        {
+            Debug.Log("load 1");
+            AssetBundleRequest request = bundle.LoadAssetAsync<GameObject>(assetBundleName);
+            Debug.Log("load 2");
+            //yield return request;
+
+            GameObject cat = request.asset as GameObject;
+      
+            GameObject objInstatiate = Instantiate<GameObject>(cat);
+            objInstatiate.name = cat.name;
+            bundle.Unload(false);
+            yield return request;
+        }
+    }
+
     private string[] StrToJsonArr(string data)
     {
         string[] result2;
       
         int pFrom = data.IndexOf("[") + 1;
         int pTo = data.LastIndexOf("]");
-
+   
         string result = data.Substring(pFrom, pTo - pFrom);
 
         if (result.Length > 0)
@@ -731,18 +942,13 @@ public class NetworkManager : MonoBehaviour
     public class PlayerJSON
     {
         public string name;
-        public List<PointJSON> playerSpawnPoints;
+        public PointJSON playerSpawnPoint;
 
-        public PlayerJSON(string _name, List<SpawnPoint> _playerSpawnPoints)
+        public PlayerJSON(string _name, GameObject _playerSpawnPoint)
         {
-            playerSpawnPoints = new List<PointJSON>();
+            PointJSON pointJSON = new PointJSON(_playerSpawnPoint);
+            playerSpawnPoint = pointJSON;   
             name = _name;
-            foreach (SpawnPoint playerSpawnPoint in _playerSpawnPoints)
-            {
-                PointJSON pointJSON = new PointJSON(playerSpawnPoint);
-                playerSpawnPoints.Add(pointJSON);
-            }
-
         }
     }
 
@@ -784,7 +990,7 @@ public class NetworkManager : MonoBehaviour
     {
         public float[] position;
 
-        public PointJSON(SpawnPoint spawnPoint)
+        public PointJSON(GameObject spawnPoint)
         {
 
             position = new float[] {
@@ -874,6 +1080,7 @@ public class NetworkManager : MonoBehaviour
         public float[] animation;
         public int numAnimation;
         public int fish;
+        public string server;
 
         public static UserJSON CreateFromJSON(string data)
         {
@@ -893,6 +1100,19 @@ public class NetworkManager : MonoBehaviour
     }
 
     [Serializable]
+    public class HandleFriendJSON
+    {
+        public string playerId;
+        public string playerUsername;
+        public bool addFriend;
+
+        public static HandleFriendJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<HandleFriendJSON>(data);
+        }
+    }
+
+    [Serializable]
     public class StringToJSON
     {
         public string stringVal;
@@ -907,10 +1127,41 @@ public class NetworkManager : MonoBehaviour
     public class IntToJSON
     {
         public int intVal;
+        public int count;
 
         public IntToJSON(int _intVal)
         {
             intVal = _intVal;
+        }
+
+        public static IntToJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<IntToJSON>(data);
+        }
+    }
+
+    [Serializable]
+    public class StringIntToJSON
+    {
+        public int intVal;
+        public string stringVal;
+
+        public StringIntToJSON(int _intVal, string _stringVal)
+        {
+            intVal = _intVal;
+            stringVal = _stringVal;
+        }
+    }
+
+    [Serializable]
+    public class FriendStatusJSON
+    {
+        public string username;
+        public bool isFriend;
+
+        public static FriendStatusJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<FriendStatusJSON>(data);
         }
     }
 
@@ -922,6 +1173,19 @@ public class NetworkManager : MonoBehaviour
         public static ErrorJSON CreateFromJSON(string err)
         {
             return JsonUtility.FromJson<ErrorJSON>(err);
+        }
+    }
+
+    [Serializable]
+    public class HandleRequestJSON
+    {
+        public string requestId;
+        public bool acceptRequest;
+
+        public HandleRequestJSON(string _requestId, bool _acceptRequest)
+        {
+            requestId = _requestId;
+            acceptRequest = _acceptRequest;
         }
     }
     #endregion
