@@ -33,7 +33,7 @@ namespace UnitySocketIO {
             else {
                 socketIO = gameObject.AddComponent<NativeSocketIO>();
             }
-            
+
             socketIO.Init(settings);
         }
 

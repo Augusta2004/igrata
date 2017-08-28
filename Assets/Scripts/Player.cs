@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
 
         playerController.GetComponent<Player>().user_id = user_id;
 
-        NetworkManager.instance.GetComponent<NetworkManager>().GetOtherPlayerItems(username);
+        NetworkManager.instance.GetComponent<NetworkManager>().GetOtherPlayerItems(username, user_id);
 
         playerCard.transform.GetChild(0).gameObject.SetActive(false);
         playerCardOC.transform.GetChild(0).gameObject.SetActive(true);

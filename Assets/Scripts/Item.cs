@@ -46,7 +46,6 @@ public class Item : MonoBehaviour
             dialog.transform.Find("Canvas").transform.Find("YesBuy").gameObject.SetActive(true);
             dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(false);
             dialog.transform.Find("Canvas").transform.Find("Cancel").gameObject.SetActive(true);
-            dialog.transform.Find("Canvas").transform.Find("OK").gameObject.SetActive(false);
 
             dialog.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = "Buy this item?";
         }
@@ -76,7 +75,6 @@ public class Item : MonoBehaviour
         dialog.transform.Find("Canvas").transform.Find("Yes").gameObject.SetActive(true);
         dialog.transform.Find("Canvas").transform.Find("YesBuy").gameObject.SetActive(false);
         dialog.transform.Find("Canvas").transform.Find("Cancel").gameObject.SetActive(true);
-        dialog.transform.Find("Canvas").transform.Find("OK").gameObject.SetActive(false);
 
         dialog.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = "Collect this item?";
 

@@ -8,6 +8,7 @@ using System.Globalization;
 using UnityEngine.SceneManagement;
 using System.Timers;
 using UnitySocketIO.Events;
+using UnityEngine.Networking;
 
 public class NetworkManager : MonoBehaviour
 {
@@ -67,17 +68,16 @@ public class NetworkManager : MonoBehaviour
         socket.On("player move", OnPlayerMove);
         socket.On("player stop animation", OnPlayerStopAnimation);
         socket.On("player chat", OnPlayerChat);
-        socket.On("collect item", OnCollectItem);
         socket.On("get player items", OnGetPlayerItems);
         socket.On("get player items count", OnGetPlayerItemsCount);
         socket.On("get other player items", OnGetOtherPlayerItems);
         socket.On("get on items", OnGetOnItems);
         socket.On("get on other player items", OnGetOnOtherPlayerItems);
-        socket.On("buy item", OnBuyItem);
         socket.On("player change room", OnPlayerChangeRoom);
         socket.On("players loaded", OnPlayersLoaded);
+        socket.On("show dialog", OnShowDialog);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
-
+        
         socket.Connect();        
     }
     
@@ -113,7 +113,7 @@ public class NetworkManager : MonoBehaviour
         string playerName = localUsername;
         playerNameInput = playerName;
         
-        yield return StartCoroutine(DownloadObject("SpawnPoints/", false, sceneName.ToLower(), false));
+        yield return StartCoroutine(DownloadObject("SpawnPoints/", false, sceneName.ToLower(), false, false));
 
         GameObject spawnPoint = GameObject.Find(sceneName).gameObject;
 
@@ -187,9 +187,9 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void GetOtherPlayerItems(String username)
+    public void GetOtherPlayerItems(string username, string id)
     {
-        string data = JsonUtility.ToJson(new StringToJSON(username));
+        string data = JsonUtility.ToJson(new Player2JSON(id, username));
         socket.Emit("get other player items", data);
     }
 
@@ -270,6 +270,18 @@ public class NetworkManager : MonoBehaviour
     public void HandleRequest(string requestUserID, bool acceptRequest)
     {
         socket.Emit("handle request", JsonUtility.ToJson(new HandleRequestJSON(requestUserID, acceptRequest)));
+    }
+
+    public void ServerError()
+    {
+        GameObject dialogHolder = GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject;
+
+        dialogHolder.SetActive(true);
+        dialogHolder.GetComponent<DialogController>().refreshPage = true;
+        GameObject itemDialogCanvas = GameObject.Find("Dialog").transform.Find("DialogHolder").transform.Find("Canvas").gameObject;
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = "Problem with the server";
+
+        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
     }
 
     #endregion
@@ -358,15 +370,16 @@ public class NetworkManager : MonoBehaviour
         p.name = currentUserJSON.name;
 
         socket.Emit("get on items");
-
+        /*
         string currentAnimation = p.GetComponent<SpriteRenderer>().sprite.name;
         int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
         Debug.Log(p.name + " | " + pc.spritesArray.Count);
         foreach (KeyValuePair<string, Sprite[]> entry in pc.spritesArray)
         {
             p.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
+            Debug.Log(entry.Value[numAnimation]);
         }
-
+        */
         //playerLoaded = true;
         //GameObject playerCardInstance = Instantiate(playerCard, position, Quaternion.identity) as GameObject;
         // playerCardInstance.name = currentUserJSON.name + "PC";
@@ -485,21 +498,6 @@ public class NetworkManager : MonoBehaviour
         p.transform.Find("EmojiSprite").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(chatJSON.emoji);
     }
 
-    void OnCollectItem(SocketIOEvent socketIOEvent)
-    {
-        string data = socketIOEvent.data.ToString();
-        ItemJSON itemJSON = ItemJSON.CreateFromJSON(data);
-
-        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").transform.Find("Canvas").gameObject;
-        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = itemJSON.name;
-
-        itemDialogCanvas.transform.Find("Yes").gameObject.SetActive(false);
-        itemDialogCanvas.transform.Find("Cancel").gameObject.SetActive(false);
-        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
-
-        isServerAvailable = true;
-    }
-
     void OnGetPlayerItems(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data;
@@ -509,7 +507,7 @@ public class NetworkManager : MonoBehaviour
         {
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
 
-            GameObject itemObject = Instantiate(item, new Vector2(0, 0), Quaternion.identity) as GameObject;
+            GameObject itemObject = Instantiate(item, new Vector3(0, 0, -0.8f), Quaternion.identity) as GameObject;
             itemObject.name = "Item " + itemsJson.item_id;
             itemObject.transform.parent = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder");
 
@@ -521,7 +519,7 @@ public class NetworkManager : MonoBehaviour
             //string path = "Sprites/Items/" + itemsJson.picture;
             //itemObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(path);
 
-            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, itemObject, i.ToString());            
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, true, localUsername, itemObject, i.ToString());            
             
             /*
             GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
@@ -582,7 +580,7 @@ public class NetworkManager : MonoBehaviour
 
             string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
 
-            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, username, item.transform.Find(type1).gameObject, "item on");
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, true, username, item.transform.Find(type1).gameObject, "item on");
             //item.transform.Find(type1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
         }
     }
@@ -622,8 +620,9 @@ public class NetworkManager : MonoBehaviour
            // StartCoroutine(DownloadAsset(url, itemsJson.picture + "PC", itemsJson.item_id));
 
             //item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
-            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, item, "item on");
-            
+            //LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, item, "item on");
+            StartCoroutine(DownloadObject("Items/PlayerCard/", true, itemsJson.picture, true, true, localUsername, item, "item on"));
+
             item.GetComponent<ItemRemove>().id = itemsJson.item_id;
             item.GetComponent<ItemRemove>().type = itemsJson.type;
 
@@ -632,18 +631,20 @@ public class NetworkManager : MonoBehaviour
                 //var subSprites = Resources.LoadAll<Sprite>("Animations/"  + itemsJson.item_id);
                // localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
 
-                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, localUsername, localPlayer, itemsJson.type);
+                //LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, localUsername, localPlayer, itemsJson.type);
+                StartCoroutine(DownloadObject("Items/Animations/", true, itemsJson.item_id, false, true, localUsername, localPlayer, itemsJson.type));
             }
         }
         
+        /*
         string currentAnimation = localPlayer.GetComponent<SpriteRenderer>().sprite.name;
         int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
         
         foreach (KeyValuePair<string, Sprite[]> entry in localPlayer.GetComponent<CharacterController>().spritesArray)
         {
             itemHolder.transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
-            
-        }
+            Debug.Log(entry.Value[numAnimation]);
+        }*/
     }
     
     void OnGetOnOtherPlayerItems(SocketIOEvent socketIOEvent)
@@ -678,21 +679,22 @@ public class NetworkManager : MonoBehaviour
                 //var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.item_id);
                // otherPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
 
-                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, username, otherPlayer, itemsJson.type); 
+                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, true, username, otherPlayer, itemsJson.type); 
             }
         }
     }
-    
-    void OnBuyItem(SocketIOEvent socketIOEvent)
+
+    void OnShowDialog(SocketIOEvent socketIOEvent)
     {
+        
         string data = socketIOEvent.data.ToString();
         Debug.Log(data);
-        ErrorJSON errorJSON = ErrorJSON.CreateFromJSON(data);
-        GameObject itemDialogCanvas = GameObject.Find("ItemDialog").transform.Find("ItemDialogHolder").transform.Find("Canvas").gameObject;
-        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = errorJSON.errors[0];
+        StringToJSON dialogText = StringToJSON.CreateFromJSON(data);
 
-        itemDialogCanvas.transform.Find("YesBuy").gameObject.SetActive(false);
-        itemDialogCanvas.transform.Find("Cancel").gameObject.SetActive(false);
+        GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject.SetActive(true);
+        GameObject itemDialogCanvas = GameObject.Find("Dialog").transform.Find("DialogHolder").transform.Find("Canvas").gameObject;
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = dialogText.stringVal;
+
         itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
 
         isServerAvailable = true;
@@ -823,20 +825,42 @@ public class NetworkManager : MonoBehaviour
 
     #region Miscelanieous
 
-    public void LoadAssetBundles(string assetFolder, bool isSprite, string assetBundleName, bool isPC, string username = null, GameObject obj = null, string itemType = null)
+    public void LoadAssetBundles(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = true, string username = null, GameObject obj = null, string itemType = null)
     {
-        StartCoroutine(DownloadObject(assetFolder, isSprite, assetBundleName, isPC, username, obj, itemType));
+        StartCoroutine(DownloadObject(assetFolder, isSprite, assetBundleName, isPC, downloadFromCache, username, obj, itemType));
     }
 
-    IEnumerator DownloadObject(string assetFolder, bool isSprite, string assetBundleName, bool isPC, string username = null, GameObject obj = null, string itemType = null)
+    IEnumerator DownloadObject(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = true, string username = null, GameObject obj = null, string itemType = null)
     {
         //string path = "file:///D:/UnityProjects/The Game/server/server/public/Assets/" + assetBundleName;
         string path = "http://localhost:3000/Assets/" + assetFolder + assetBundleName;
-        WWW www = WWW.LoadFromCacheOrDownload(path, 1);
-     
-        yield return www;
+        AssetBundle bundle = null;
 
-        AssetBundle bundle = www.assetBundle;
+        if (downloadFromCache)
+        {
+            WWW www = WWW.LoadFromCacheOrDownload(path, 1);
+
+            yield return www;
+
+            bundle = www.assetBundle;
+
+            Debug.Log("Cache");
+        }
+        else
+        {
+            UnityWebRequest www = UnityWebRequest.GetAssetBundle(path);
+            yield return www.Send();
+
+            if (www.isNetworkError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                bundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
+                Debug.Log("Download from server");
+            }
+        }
 
         if(isSprite)
         {
@@ -868,8 +892,8 @@ public class NetworkManager : MonoBehaviour
 
                     int offset = i / 3 + 1;
                     float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - obj.GetComponent<SpriteRenderer>().bounds.size.y * offset;
-                    obj.transform.position = new Vector2(x, y);
-                    obj.GetComponent<SpriteRenderer>().sortingOrder = 201;
+                    obj.transform.position = new Vector3(x, y, -3.3f);
+                    //obj.GetComponent<SpriteRenderer>().sortingOrder = 201;
                 }
                 
             }
@@ -877,15 +901,17 @@ public class NetworkManager : MonoBehaviour
             {
                 obj.GetComponent<CharacterController>().spritesArray[itemType] = spriteSheet;
 
-                if(username != localUsername)
-                {
+                //if(username != localUsername)
+                //{
                     string currentAnimation = obj.GetComponent<SpriteRenderer>().sprite.name;
                     int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
 
                     obj.transform.Find("ItemHolder")
                     .transform.Find(itemType + "Sprite")
                     .GetComponent<SpriteRenderer>().sprite = spriteSheet[numAnimation];
-                }
+
+                    Debug.Log(spriteSheet[numAnimation]);
+                //}
             }
 
             bundle.Unload(false);
@@ -1120,6 +1146,11 @@ public class NetworkManager : MonoBehaviour
         public StringToJSON(string _stringVal)
         {
             stringVal = _stringVal;
+        }
+
+        public static StringToJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<StringToJSON>(data);
         }
     }
 

@@ -20,6 +20,8 @@ namespace UnitySocketIO.SocketIO {
         Queue<SocketPacket> ackQueue;
         List<Ack> ackList;
 
+        private string connected;
+
         bool isReady;
 
         public override void Init(SocketIOSettings settings) {
@@ -33,6 +35,24 @@ namespace UnitySocketIO.SocketIO {
 
             AddSocketIO();
             AddEventListeners();
+        }
+
+        private void Update()
+        {
+            Application.ExternalEval("var obj = null;" +
+                "if (typeof unityObject != 'undefined')" +
+                    "{" +
+                        "obj = unityObject.getObjectById('unityPlayer');" +
+                        "alert('Unity object is there');" +
+                        "obj.SendMessage ('WebCheckGameObject', 'SetConnected', window.socketIO.connected);" +
+                    "}"
+                );
+            Debug.Log(connected);
+        }
+
+        public void SetConnected(string conn)
+        {
+            connected = conn;
         }
 
         public void SetSocketID(string socketID) {

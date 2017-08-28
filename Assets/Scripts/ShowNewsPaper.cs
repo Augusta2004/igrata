@@ -9,7 +9,7 @@ public class ShowNewsPaper : MonoBehaviour
         //Newspaper.SetActive(true);
         if (GameObject.Find("Newspaper") == null)
         {
-            NetworkManager.instance.GetComponent<NetworkManager>().LoadAssetBundles("Newspaper/", false, "newspaper", false);
+            NetworkManager.instance.GetComponent<NetworkManager>().LoadAssetBundles("Newspaper/", false, "newspaper", false, false);
         }
         else
         {

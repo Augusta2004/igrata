@@ -107,6 +107,7 @@
     <Compile Include="Assets\Scripts\DragPlayerCard.cs" />
     <Compile Include="Assets\Scripts\FriendListToRequest.cs" />
     <Compile Include="Assets\Scripts\FriendsController.cs" />
+    <Compile Include="Assets\Scripts\HideSortItem.cs" />
     <Compile Include="Assets\Scripts\Item.cs" />
     <Compile Include="Assets\Scripts\ItemRemove.cs" />
     <Compile Include="Assets\Scripts\LevelLoader.cs" />
@@ -242,6 +243,7 @@
     <None Include="Assets\Tiled2Unity\Imported\_ReadMe.txt" />
     <None Include="Assets\Tiled2Unity\Imported\beach.tiled2unity.xml" />
     <None Include="Assets\Tiled2Unity\Imported\ice-land.tiled2unity.xml" />
+    <None Include="Assets\Tiled2Unity\Imported\newMap.tiled2unity.xml" />
     <None Include="Assets\Tiled2Unity\Imported\samarsko-zname.tiled2unity.xml" />
     <None Include="Assets\Tiled2Unity\License.txt" />
     <None Include="Assets\Tiled2Unity\Materials\_ReadMe.txt" />

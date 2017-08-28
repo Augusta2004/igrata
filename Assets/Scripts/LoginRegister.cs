@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+
 
 public class LoginRegister : MonoBehaviour {
 
@@ -13,6 +15,35 @@ public class LoginRegister : MonoBehaviour {
     public GameObject loginLink;
     public GameObject back;
 
+    EventSystem system;
+
+    void Start()
+    {
+        system = EventSystem.current;// EventSystemManager.currentSystem;
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            Selectable next = system.currentSelectedGameObject.GetComponent<Selectable>().FindSelectableOnDown();
+
+            if (next != null)
+            {
+
+                InputField inputfield = next.GetComponent<InputField>();
+                if (inputfield != null)
+                    inputfield.OnPointerClick(new PointerEventData(system));
+
+                system.SetSelectedGameObject(next.gameObject, new BaseEventData(system));
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            Login();
+        }
+    }
 
     public void Back()
     {

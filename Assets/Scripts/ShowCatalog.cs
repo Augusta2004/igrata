@@ -8,7 +8,7 @@ public class ShowCatalog : MonoBehaviour
     {        
         if (GameObject.Find("Catalog") == null)
         {
-            NetworkManager.instance.GetComponent<NetworkManager>().LoadAssetBundles("Catalog/", false, "catalog", false);
+            NetworkManager.instance.GetComponent<NetworkManager>().LoadAssetBundles("Catalog/", false, "catalog", false, false);
         }
         else
         {
