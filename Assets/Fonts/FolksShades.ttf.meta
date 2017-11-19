@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: bb2fb9ed096b50e4eb1afe03fcbc6255
+timeCreated: 1507989461
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: FolksShades
+  fontNames:
+  - FolksShades
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -26,6 +26,7 @@ public class Player : MonoBehaviour
         bool isLocal = this.gameObject.GetComponent<CharacterController>().isLocalPlayer;
         if (isLocal)
         {
+            //Close character info
             ShowItems();
         }
         else
@@ -36,6 +37,8 @@ public class Player : MonoBehaviour
 
     public void ShowOCPlayerCard(string username, bool isFriend = false, string userId = null)
     {
+        //CLOSE CHARACTER INFO
+
         GameObject playerCard = GameObject.Find("PlayerCard") as GameObject;
         GameObject playerCardOC = GameObject.Find("PlayerCardOC") as GameObject;
 
@@ -52,17 +55,23 @@ public class Player : MonoBehaviour
             .transform.Find("PlayerCardHolder")
             .transform.Find("FriendDialog").gameObject.SetActive(false);
 
-        playerCardOCCanvas.transform.Find("PlayerName").GetComponent<Text>().text = username;
+        string usernameToShow = username.Substring(0, username.Length - 7);
+
+        playerCardOCCanvas.transform.Find("PlayerName").GetComponent<Text>().text = usernameToShow;
 
         if (isFriend)
         {
             addButton = false;
             removeButton = true;
+
+            playerCardOCCanvas.transform.Find("ShowInfo").gameObject.SetActive(true);
         }
         else
         {
             addButton = true;
             removeButton = false;
+
+            playerCardOCCanvas.transform.Find("ShowInfo").gameObject.SetActive(false);
         }
 
         playerCardOCCanvas.transform.Find("AddFriend").gameObject.SetActive(addButton);
@@ -73,6 +82,7 @@ public class Player : MonoBehaviour
         {
             user_id = userId;
         }
+        Debug.Log(user_id);
 
         playerController.GetComponent<Player>().user_id = user_id;
 
@@ -91,7 +101,7 @@ public class Player : MonoBehaviour
         GameObject dropdown = GameObject.Find("PlayerCard")
             .transform.Find("DragPlayerCard")
             .transform.Find("PlayerCardHolder")
-            .transform.Find("PlayerCardCanvas")
+            .transform.Find("SortCanvas")
             .transform.Find("SortHolder")
             .transform.Find("Type")
             .gameObject;
@@ -105,7 +115,7 @@ public class Player : MonoBehaviour
                 break;
 
             case 1:
-                itemType = "pin";
+                itemType = "badge";
                 break;
 
             case 2:
@@ -115,20 +125,22 @@ public class Player : MonoBehaviour
             case 3:
                 itemType = "head";
                 break;
-
             case 4:
-                itemType = "shoulders";
+                itemType = "face";
                 break;
-
             case 5:
-                itemType = "body";
+                itemType = "neck";
                 break;
 
             case 6:
-                itemType = "hands";
+                itemType = "body";
                 break;
 
             case 7:
+                itemType = "hands";
+                break;
+
+            case 8:
                 itemType = "boots";
                 break;
 
@@ -138,21 +150,39 @@ public class Player : MonoBehaviour
         ShowItems(itemType);
     }
 
-    private void ShowItems(string type = null)
+    public void ShowItems(string type = null)
     {
-        NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItemsCount(type);
-        NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItems(NetworkManager.itemsPage, type);
-
         GameObject playerCard = GameObject.Find("PlayerCard") as GameObject;
         GameObject playerCardOC = GameObject.Find("PlayerCardOC") as GameObject;
 
         playerCard.transform.GetChild(0).gameObject.SetActive(true);
         playerCardOC.transform.GetChild(0).gameObject.SetActive(false);
 
+        NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItemsCount(type);
+        NetworkManager.instance.GetComponent<NetworkManager>().GetPlayerItems(NetworkManager.itemsPage, type);
+
         GameObject itemsHolder = GameObject.Find("PlayerCard")
             .transform.Find("DragPlayerCard")
             .transform.Find("PlayerCardHolder")
             .transform.Find("ItemsHolder").gameObject;
+
+        if (!itemsHolder.activeSelf)
+        {
+            Debug.Log("SHOW ITEMS");
+            itemsHolder.SetActive(true);
+            GameObject canvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("SortCanvas").gameObject;
+            canvas.transform.Find("SortHolder").gameObject.SetActive(true);
+
+            GameObject showItems = GameObject.Find("PlayerCard")
+            .transform.Find("DragPlayerCard")
+            .transform.Find("PlayerCardHolder")
+            .transform.Find("ShowItems").gameObject;
+
+            var x = itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x;
+            showItems.transform.position = new Vector2(showItems.transform.position.x + x, showItems.transform.position.y);
+
+            canvas.transform.Find("SortHolder").transform.Find("Type").gameObject.GetComponent<Dropdown>().value = 0;
+        }
 
         foreach (Transform child in itemsHolder.transform)
         {
@@ -167,6 +197,7 @@ public class Player : MonoBehaviour
             .transform.Find("PlayerCardHolder")
             .transform.Find("PlayerCardCanvas")
             .transform.Find("Fish").GetComponent<Text>().text = NetworkManager.fish.ToString();
+        
     }
 
     public void PrevPage()
@@ -187,7 +218,7 @@ public class Player : MonoBehaviour
     {       
         float count = NetworkManager.itemsCount;
 
-        int maxPage = Mathf.CeilToInt(count / 3);
+        int maxPage = Mathf.CeilToInt(count / 12);
         if(maxPage <= 0)
         {
             maxPage = 1;
@@ -202,6 +233,18 @@ public class Player : MonoBehaviour
         else
         {
             ShowItems(itemType);
+        }
+    }
+
+    public void ShowInfo(bool isLocal)
+    {
+        if(isLocal)
+        {
+            NetworkManager.instance.GetComponent<NetworkManager>().showCharacterInfo(NetworkManager.localId);            
+        }
+        else
+        {
+            NetworkManager.instance.GetComponent<NetworkManager>().showCharacterInfo(user_id);
         }
     }
 

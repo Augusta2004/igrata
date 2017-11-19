@@ -47,7 +47,6 @@ namespace UnitySocketIO.SocketIO {
                         "obj.SendMessage ('WebCheckGameObject', 'SetConnected', window.socketIO.connected);" +
                     "}"
                 );
-            Debug.Log(connected);
         }
 
         public void SetConnected(string conn)

@@ -14,7 +14,7 @@ public class ClickEmoji : MonoBehaviour
         chatText.GetComponent<ChatText>().sent = true;
         chatText.GetComponent<ChatText>().showTime = Time.time;
 
-        string path = "Sprites/Menu/" + this.gameObject.GetComponent<SpriteRenderer>().sprite.name;
+        string path = "Sprites/Menu/Emoji/" + this.gameObject.GetComponent<SpriteRenderer>().sprite.name;
 
         NetworkManager.instance.GetComponent<NetworkManager>().SendEmoji(path);
     }

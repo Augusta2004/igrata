@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ShowRequest : MonoBehaviour {
     
-    [HideInInspector]
+   // [HideInInspector]
     public string request_id;
  
     public int requestOrder;
@@ -14,6 +14,6 @@ public class ShowRequest : MonoBehaviour {
         FriendsController.requestId = request_id;
         FriendsController.requestOrder = requestOrder;
 
-        this.transform.parent.parent.transform.Find("RequestDialogBox").gameObject.SetActive(true);        
+        GameObject.Find("RequestDialogHolder").transform.Find("RequestDialogBox").gameObject.SetActive(true);        
     }
 }

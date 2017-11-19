@@ -18,7 +18,7 @@ public class ClickItem : MonoBehaviour {
 
             string type1 = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(type.ToLower());
             string id = this.transform.parent.transform.parent.Find("Player Clothes").transform.Find(type1).GetComponent<ItemRemove>().id;
-            Debug.Log(this.transform.parent.transform.Find("Item " + id));
+            //Debug.Log(this.transform.parent.transform.Find("Item " + id));
             if (id != "" && id != null && this.transform.parent.transform.Find("Item " + id) != null)
             {
                 this.transform.parent.transform.Find("Item " + id).GetComponent<ClickItem>().item_on = false;

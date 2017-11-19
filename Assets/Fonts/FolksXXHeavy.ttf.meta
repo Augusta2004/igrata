@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 022348a06d6dad34a87fed3beee701ec
+timeCreated: 1507989459
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: FolksXX
+  fontNames:
+  - FolksXX
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

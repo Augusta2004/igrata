@@ -1,0 +1,20 @@
+ManifestFileVersion: 0
+CRC: 2648131193
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 21bf390ce9c6038032ea44eb6e3c3599
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ad585dd02dfb5016c0dad519eab8f49
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/AssetBundles/5a0c9b4618ff27e179537dab.manifest
+- Assets/AssetBundles/AssetBundles.manifest
+- Assets/AssetBundles/tempitems.manifest
+- Assets/AssetBundles/593a92eb453c7208fb3685ca_pc.manifest
+- Assets/AssetBundles/tempitemscontainer.manifest
+Dependencies: []

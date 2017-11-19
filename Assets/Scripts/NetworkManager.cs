@@ -9,13 +9,15 @@ using UnityEngine.SceneManagement;
 using System.Timers;
 using UnitySocketIO.Events;
 using UnityEngine.Networking;
+using System.Text.RegularExpressions;
+using UnityEngine.EventSystems;
 
 public class NetworkManager : MonoBehaviour
 {
 
     public static NetworkManager instance;
     public SocketIOController socket;
-    private string playerNameInput; 
+    private string playerNameInput;
     public GameObject player;
 
     public static int fish;
@@ -27,7 +29,7 @@ public class NetworkManager : MonoBehaviour
 
     public static bool isServerAvailable = true;
     public static string localUsername;
-    private string localId;
+    public static string localId;
     public static string serverName;
 
     public static string sceneName;
@@ -41,6 +43,14 @@ public class NetworkManager : MonoBehaviour
     public static int itemsCount;
     public static int itemsPage = 1;
 
+    public static int currentFriendsPage = 1;
+    public static int friendsCount;
+    public static int requestsCount;
+
+    public static bool tempItemsLoaded = false;
+
+    Texture2D cursor;
+
     private void Awake()
     {
         if (instance == null)
@@ -52,10 +62,14 @@ public class NetworkManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        cursor = (Texture2D)Resources.Load("Sprites/Cursors/Arrow");
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
     }
     void Start()
     {
         socket.On("user login", OnUserLogin);
+        socket.On("user register", OnUserRegister);
 
         socket.On("other player connected", OnOtherPlayerConnected);
         socket.On("get friend status", OnGetFriendStatus);
@@ -63,11 +77,14 @@ public class NetworkManager : MonoBehaviour
         socket.On("show requests", OnShowRequests);
         socket.On("update friend list", OnUpdateFriendList);
         socket.On("update requests", OnUpdateRequests);
+        socket.On("get friends count", OnGetFriendsCount);
+        socket.On("get requests count", OnGetRequestsCount);
         socket.On("handle friend", OnHandleFriend);
         socket.On("play", OnPlay);
         socket.On("player move", OnPlayerMove);
         socket.On("player stop animation", OnPlayerStopAnimation);
         socket.On("player chat", OnPlayerChat);
+        socket.On("movement", OnMovement);
         socket.On("get player items", OnGetPlayerItems);
         socket.On("get player items count", OnGetPlayerItemsCount);
         socket.On("get other player items", OnGetOtherPlayerItems);
@@ -76,25 +93,27 @@ public class NetworkManager : MonoBehaviour
         socket.On("player change room", OnPlayerChangeRoom);
         socket.On("players loaded", OnPlayersLoaded);
         socket.On("show dialog", OnShowDialog);
+        socket.On("get popularity", OnGetPopularity);
         socket.On("other player disconnected", OnOtherPlayerDisconnected);
-        
-        socket.Connect();        
+        socket.On("disconnect", OnDisconnect);
+
+        socket.Connect();
     }
-    
+
     public void LoginLink()
     {
         GameObject.Find("Canvas").transform.Find("Login").gameObject.SetActive(true);
         GameObject.Find("Canvas").transform.Find("LoginLink").gameObject.SetActive(false);
         GameObject.Find("Canvas").transform.Find("Back").gameObject.SetActive(true);
     }
-   
+
     #region Commands
 
     public void ConnectToServer()
     {
         StartCoroutine(OuterIEnumerator());
     }
-        
+
     IEnumerator OuterIEnumerator()
     {
         yield return StartCoroutine(ConnectToServerCR());
@@ -112,7 +131,7 @@ public class NetworkManager : MonoBehaviour
 
         string playerName = localUsername;
         playerNameInput = playerName;
-        
+
         yield return StartCoroutine(DownloadObject("SpawnPoints/", false, sceneName.ToLower(), false, false));
 
         GameObject spawnPoint = GameObject.Find(sceneName).gameObject;
@@ -122,7 +141,7 @@ public class NetworkManager : MonoBehaviour
 
         socket.Emit("play", data);
     }
-   
+
     public void CommandMove(Vector2 vec2, Vector2 anim, int numAnimation)
     {
         string data = JsonUtility.ToJson(new AnimationPositionJSON(vec2, anim, numAnimation));
@@ -131,24 +150,37 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("player move", data);
     }
 
-    public void StopAnimation(int numAnimation)
+    public void StopAnimation(Vector2 vec2)
     {
-        socket.Emit("player stop animation", JsonUtility.ToJson(new IntToJSON(numAnimation)));
+        socket.Emit("player stop animation", JsonUtility.ToJson(new Vec2ToJSON(vec2)));
     }
 
-    public void PlayerChat(String message, String emojiPath)
+    public void PlayerChat(string message, string emojiPath)
     {
         Debug.Log("empty string");
         string data = JsonUtility.ToJson(new ChatJSON(message, emojiPath));
-        
+
         socket.Emit("player chat", data);
     }
 
     public void SendEmoji(String emojiSprite)
     {
         GameObject.Find("EmojiBox").SetActive(false);
-        Debug.Log("hide box");
+        Debug.Log(emojiSprite);
         PlayerChat("", emojiSprite);
+    }
+
+    public void Movement(string movementName, float x = 10, float y = 10)
+    {
+        GameObject chatInput = GameObject.Find("ChatCanvas").transform.Find("ChatInput").gameObject;
+
+        GameObject obj = EventSystem.current.currentSelectedGameObject;
+        if (obj == null || obj.GetComponent<InputField>() == null/*chatInput.GetComponent<InputField>().isFocused == false*/)
+        {
+            string data = JsonUtility.ToJson(new MovementJSON(localUsername, movementName, x, y));
+
+            socket.Emit("movement", data);
+        }
     }
 
     public void CollectItem(string id, string playerName)
@@ -220,7 +252,13 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(data);
         socket.Emit("user login", data);
     }
-    
+
+    public void UserRegister(string data)
+    {
+        Debug.Log(data);
+        socket.Emit("user register", data);
+    }
+
     public void ChangeRoom(string roomName)
     {
         Dictionary<String, String> roomDictionary = new Dictionary<string, string>();
@@ -250,16 +288,26 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("remove friend", JsonUtility.ToJson(new StringToJSON(user_id)));
     }
 
-    public void ShowFriends()
+    public void ShowFriends(int page)
     {
         Debug.Log("Show friends from SERVER");
-        socket.Emit("show friends");
+        socket.Emit("show friends", JsonUtility.ToJson(new IntToJSON(page)));
     }
 
-    public void ShowRequests()
+    public void GetFriendsCount()
+    {
+        socket.Emit("get friends count");
+    }
+
+    public void ShowRequests(int page)
     {
         Debug.Log("Show requests from SERVER");
-        socket.Emit("show requests");
+        socket.Emit("show requests", JsonUtility.ToJson(new IntToJSON(page)));
+    }
+
+    public void GetRequestsCount()
+    {
+        socket.Emit("get requests count");
     }
 
     public void CheckForRequestUpdate()
@@ -272,14 +320,61 @@ public class NetworkManager : MonoBehaviour
         socket.Emit("handle request", JsonUtility.ToJson(new HandleRequestJSON(requestUserID, acceptRequest)));
     }
 
-    public void ServerError()
+    public void showCharacterInfo(string user_id, bool showDays = true)
     {
-        GameObject dialogHolder = GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject;
+        string data = JsonUtility.ToJson(new StringBoolJSON(user_id, showDays));
+        socket.Emit("show character info", data);
+    }
 
-        dialogHolder.SetActive(true);
-        dialogHolder.GetComponent<DialogController>().refreshPage = true;
+    private void ChangePopularityRing(string username, int popularity)
+    {
+        Debug.Log(username);
+        if (popularity > 25)
+        {
+            GameObject.Find(username + "_player").transform.Find("PopularityRing").GetComponent<SpriteRenderer>().enabled = true;
+
+            Color32 color = new Color32(255, 255, 255, 255);
+            if (popularity > 100 && popularity < 251)
+            {
+                color = new Color32(0, 90, 178, 255);
+            }
+            else if (popularity > 250 && popularity < 1001)
+            {
+                color = new Color32(28, 174, 90, 255);
+            }
+            else if (popularity > 1000)
+            {
+                color = new Color32(234, 34, 34, 255);
+            }
+
+            GameObject.Find(username + "_player").transform.Find("PopularityRing").GetComponent<SpriteRenderer>().color = color;
+
+        }
+        else
+        {
+            GameObject.Find(username + "_player").transform.Find("PopularityRing").GetComponent<SpriteRenderer>().enabled = false;
+        }
+    }
+
+    public void CheckPremiumCode(string code)
+    {
+        Regex rg = new Regex(@"^[a-zA-Z0-9\s,]*$");
+        if (code.Length == 6 && rg.IsMatch(code))
+        {
+            Debug.Log("Check!!!");
+            socket.Emit("check premium code", JsonUtility.ToJson(new StringToJSON(code)));
+        }
+        else
+        {
+            ShowDialog("Invalid code, it must be 6 characters long!");
+        }
+    }
+
+    private void ShowDialog(string text)
+    {
+        GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject.SetActive(true);
         GameObject itemDialogCanvas = GameObject.Find("Dialog").transform.Find("DialogHolder").transform.Find("Canvas").gameObject;
-        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = "Problem with the server";
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = text;
 
         itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
     }
@@ -315,6 +410,28 @@ public class NetworkManager : MonoBehaviour
             //StartCoroutine(ConnectToServerCR());
         }
     }
+
+    void OnUserRegister(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+
+        ErrorJSON errorJSON = ErrorJSON.CreateFromJSON(data);
+
+        if (errorJSON.errors.Length > 0)
+        {
+            string errStr = "";
+            for (int i = 0; i < errorJSON.errors.Length; i++)
+            {
+                errStr += errorJSON.errors[i] + '\n';
+            }
+
+            GameObject.Find("Canvas").transform.Find("Register").transform.Find("RegisterErrors").GetComponent<Text>().text = errStr;
+        }
+        else
+        {
+            LoginRegister.instance.GetComponent<LoginRegister>().Back(true);
+        }
+    }
     
     void OnOtherPlayerConnected(SocketIOEvent socketIOEvent)
     {
@@ -324,7 +441,7 @@ public class NetworkManager : MonoBehaviour
 
         UserJSON userJSON = UserJSON.CreateFromJSON(data);
         Vector2 position = new Vector2(userJSON.position[0], userJSON.position[1]);
-        GameObject o = GameObject.Find(userJSON.name) as GameObject;
+        GameObject o = GameObject.Find(userJSON.name + "_player") as GameObject;
         if (o != null)
         {
             return;
@@ -332,19 +449,39 @@ public class NetworkManager : MonoBehaviour
         GameObject p = Instantiate(player, position, Quaternion.identity) as GameObject;
         CharacterController pc = p.GetComponent<CharacterController>();
         Transform t = p.transform.Find("Username");
-        Transform t2 = t.transform.Find("Player Name");
+        Transform t2 = t.transform.Find("UsernameHolder").transform.Find("Player Name");
         Text playerName = t2.GetComponent<Text>();
         playerName.text = userJSON.name;
         pc.isLocalPlayer = false;
-        p.name = userJSON.name;
+        p.name = userJSON.name + "_player";
 
         Player playerScript = p.GetComponent<Player>();
         playerScript.user_id = userJSON.id;
 
-        string dataUser = JsonUtility.ToJson(new ChangeItemJSON(userJSON.id, userJSON.name));
+        if (userJSON.movement == "dance")
+        {
+            p.GetComponent<CharacterController>().Dance();
+        }
+        else if (userJSON.movement == "sit")
+        {
+            Vector2 sit = new Vector2(userJSON.animation[0], userJSON.animation[1]).normalized;
+            Debug.Log(sit);
+            p.GetComponent<CharacterController>().Sit(sit.x, sit.y);
+        }
+        else if (userJSON.movement == "walking")
+        {
+            if(userJSON.isWalking)
+            {
+                p.GetComponent<CharacterController>()._otherMove = true;
+                p.GetComponent<CharacterController>()._otherPlayer = new Vector2(userJSON.animation[0], userJSON.animation[1]);
+            }
+        }
+            string dataUser = JsonUtility.ToJson(new ChangeItemJSON(userJSON.id, userJSON.name));
        
         socket.Emit("get on other player items", dataUser);
         socket.Emit("get friend status", dataUser);
+
+        ChangePopularityRing(userJSON.name, userJSON.popularity);
     }
 
     void OnPlay(SocketIOEvent socketIOEvent)
@@ -363,13 +500,19 @@ public class NetworkManager : MonoBehaviour
 
         CharacterController pc = p.GetComponent<CharacterController>();
         Transform t = p.transform.Find("Username");
-        Transform t2 = t.transform.Find("Player Name");
+        Transform t2 = t.transform.Find("UsernameHolder").transform.Find("Player Name");
         Text playerName = t2.GetComponent<Text>();
         playerName.text = currentUserJSON.name;
         pc.isLocalPlayer = true;
-        p.name = currentUserJSON.name;
+        p.name = currentUserJSON.name + "_player";
+
+        GameObject playerCardCanvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").gameObject;
+        playerCardCanvas.transform.Find("PlayerName").GetComponent<Text>().text = localUsername;
 
         socket.Emit("get on items");
+
+        LoadAssetBundles("TemporaryItems/", false, "tempitemscontainer", false, false);
+
         /*
         string currentAnimation = p.GetComponent<SpriteRenderer>().sprite.name;
         int numAnimation = Convert.ToInt32(currentAnimation.Split('_')[1]);
@@ -391,26 +534,29 @@ public class NetworkManager : MonoBehaviour
         UserJSON userJSON = UserJSON.CreateFromJSON(data);
         Vector2 position = new Vector2(userJSON.position[0], userJSON.position[1]);
         Vector2 animation = new Vector2(userJSON.animation[0], userJSON.animation[1]);
-        int numAnimation = userJSON.numAnimation;
+        //int numAnimation = userJSON.numAnimation;
 
         if (userJSON.name == playerNameInput)
         {
             return;
         }
-        GameObject p = GameObject.Find(userJSON.name) as GameObject;
+        GameObject p = GameObject.Find(userJSON.name + "_player") as GameObject;
         if (p != null)
         {
-            p.transform.position = position;
+            p.GetComponent<CharacterController>()._otherMove = true;
+            p.GetComponent<CharacterController>()._otherPlayer = animation;
+            /*p.transform.position = position;
             p.GetComponent<Animator>().SetBool("isWalking", true);
             p.GetComponent<Animator>().SetFloat("input_x", animation.x);
-            p.GetComponent<Animator>().SetFloat("input_y", animation.y);
+            p.GetComponent<Animator>().SetFloat("input_y", animation.y);*/
 
-            var sprArr = p.GetComponent<CharacterController>().spritesArray;
+            /*var sprArr = p.GetComponent<CharacterController>().spritesArray;
 
             foreach (KeyValuePair<string, Sprite[]> entry in sprArr)
             {
                 p.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[numAnimation];
             }
+            */
         }
 
         //p.GetComponent<Animator>();
@@ -422,16 +568,16 @@ public class NetworkManager : MonoBehaviour
        
         UserJSON userJSON = UserJSON.CreateFromJSON(data);
         
-        GameObject p = GameObject.Find(userJSON.name) as GameObject;
+        GameObject p = GameObject.Find(userJSON.name + "_player") as GameObject;
        
         p.GetComponent<Animator>().SetBool("isWalking", false);
         p.GetComponent<Animator>().Play("Idle");
         
-        var sprArr = p.GetComponent<CharacterController>().spritesArray;
+        /*var sprArr = p.GetComponent<CharacterController>().spritesArray;
         foreach (KeyValuePair<string, Sprite[]> entry in sprArr)
         {
-            p.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[userJSON.numAnimation];
-        }
+            //p.transform.Find("ItemHolder").transform.Find(entry.Key + "Sprite").GetComponent<SpriteRenderer>().sprite = entry.Value[userJSON.numAnimation];
+        }*/
     }
 
     void OnPlayerChat(SocketIOEvent socketIOEvent)
@@ -439,7 +585,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data.ToString();
         ChatJSON chatJSON = ChatJSON.CreateFromJSON(data);
         
-        GameObject p = GameObject.Find(chatJSON.player) as GameObject;
+        GameObject p = GameObject.Find(chatJSON.player + "_player") as GameObject;
 
         if(chatJSON.message == "" && chatJSON.emoji == "")
         {
@@ -448,15 +594,15 @@ public class NetworkManager : MonoBehaviour
         else if(chatJSON.message == "")
         {
             p.transform.Find("ChatBaloon").gameObject.SetActive(true);
-            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localScale = new Vector3(0.4f, 1.4f, 1);
+            p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localScale = new Vector3(1f, 1.4f, 1);
             p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localPosition = new Vector3(0, 0.14f, 0);
         } 
         else
         {
             p.transform.Find("ChatBaloon").gameObject.SetActive(true);
-            p.transform.Find("ChatBaloon").transform.localPosition = new Vector3(0.01f, 0.75f, 0);
+            p.transform.Find("ChatBaloon").transform.localPosition = new Vector3(-0.03f, 0.97f, 0);
             p.transform.Find("ChatBaloon").transform.Find("TopBaloon").transform.localPosition = new Vector3(0, 0, 0);
-            p.transform.Find("Canvas").transform.Find("ChatText").transform.localPosition = new Vector3(-230.25f, -138.81f, 0);
+            p.transform.Find("Canvas").transform.Find("ChatText").transform.localPosition = new Vector3(-230.25f, -138.59f, 0);
 
             GameObject textObj = p.transform.Find("Canvas").transform.Find("ChatText").gameObject;
             Text textBox = textObj.GetComponent<Text>();
@@ -469,10 +615,16 @@ public class NetworkManager : MonoBehaviour
             float width = textGen.GetPreferredWidth(chatJSON.message, generationSettings);
             float height = textGen.GetPreferredHeight(chatJSON.message, generationSettings);
 
-            float scaleX = (0.2f + width / 300);
-            if(scaleX > 1.4f)
+            float scaleX = (0.2f + width / 100);
+
+            if(scaleX < 1)
             {
-                scaleX = 1.4f;
+                scaleX = 1;
+            }
+
+            if(scaleX > 2.58f)
+            {
+                scaleX = 2.58f;
             }
 
             int rows = Convert.ToInt32(Mathf.Ceil(height / 55));
@@ -498,6 +650,38 @@ public class NetworkManager : MonoBehaviour
         p.transform.Find("EmojiSprite").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(chatJSON.emoji);
     }
 
+    void OnMovement(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data.ToString();
+        MovementJSON movementJSON = MovementJSON.CreateFromJSON(data);
+        Debug.Log(movementJSON.player + " moved " + movementJSON.movement);
+        switch(movementJSON.movement)
+        {
+            case "wave":
+                GameObject.Find(movementJSON.player + "_player").GetComponent<CharacterController>().Wave();
+                break;
+
+            case "dance":
+                GameObject.Find(movementJSON.player + "_player").GetComponent<CharacterController>().Dance();
+                break;
+
+            case "sit":
+                if(movementJSON.x == 10 && movementJSON.y == 10)
+                {
+                    GameObject.Find(movementJSON.player + "_player").GetComponent<CharacterController>().Sit();
+                }
+                else
+                {
+                    GameObject.Find(movementJSON.player + "_player").GetComponent<CharacterController>().Sit(movementJSON.x, movementJSON.y);
+                }
+                
+                break;
+
+            default: break;
+        }
+        
+    }
+
     void OnGetPlayerItems(SocketIOEvent socketIOEvent)
     {
         string data = socketIOEvent.data;
@@ -519,7 +703,7 @@ public class NetworkManager : MonoBehaviour
             //string path = "Sprites/Items/" + itemsJson.picture;
             //itemObject.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(path);
 
-            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, true, localUsername, itemObject, i.ToString());            
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.item_id + "_pc", true, false, localUsername, itemObject, i.ToString());            
             
             /*
             GameObject itemsHolder = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
@@ -554,7 +738,7 @@ public class NetworkManager : MonoBehaviour
         string[] items = StrToJsonArr(itemsStr);
 
 
-        GameObject otherPlayer = GameObject.Find(username) as GameObject;
+        GameObject otherPlayer = GameObject.Find(username + "_player") as GameObject;
 
         if (otherPlayer != null)
         {
@@ -580,7 +764,7 @@ public class NetworkManager : MonoBehaviour
 
             string type1 = new CultureInfo("en-US").TextInfo.ToTitleCase(itemsJson.type);
 
-            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, true, username, item.transform.Find(type1).gameObject, "item on");
+            LoadAssetBundles("Items/PlayerCard/", true, itemsJson.item_id + "_pc", true, false, username, item.transform.Find(type1).gameObject, "item on");
             //item.transform.Find(type1).GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
         }
     }
@@ -590,7 +774,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data;
         string[] items = StrToJsonArr(data);
 
-        GameObject localPlayer = GameObject.Find(localUsername) as GameObject;
+        GameObject localPlayer = GameObject.Find(localUsername + "_player") as GameObject;
         
         localPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
 
@@ -621,18 +805,18 @@ public class NetworkManager : MonoBehaviour
 
             //item.GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("Sprites/Items/" + itemsJson.picture + "PC");
             //LoadAssetBundles("Items/PlayerCard/", true, itemsJson.picture, true, localUsername, item, "item on");
-            StartCoroutine(DownloadObject("Items/PlayerCard/", true, itemsJson.picture, true, true, localUsername, item, "item on"));
+            StartCoroutine(DownloadObject("Items/PlayerCard/", true, itemsJson.item_id + "_pc", true, false, localUsername, item, "item on"));
 
             item.GetComponent<ItemRemove>().id = itemsJson.item_id;
             item.GetComponent<ItemRemove>().type = itemsJson.type;
 
-            if (itemsJson.type != "pin" && itemsJson.type != "background")
+            if (itemsJson.type != "badge" && itemsJson.type != "background")
             {
                 //var subSprites = Resources.LoadAll<Sprite>("Animations/"  + itemsJson.item_id);
                // localPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
 
                 //LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, localUsername, localPlayer, itemsJson.type);
-                StartCoroutine(DownloadObject("Items/Animations/", true, itemsJson.item_id, false, true, localUsername, localPlayer, itemsJson.type));
+                StartCoroutine(DownloadObject("Items/Animations/", true, itemsJson.item_id, false, false, localUsername, localPlayer, itemsJson.type));
             }
         }
         
@@ -657,7 +841,7 @@ public class NetworkManager : MonoBehaviour
         string itemsStr = socketIOEvent.data.Split(new string[] { "\"items\":" }, StringSplitOptions.None)[1];
         string[] items = StrToJsonArr(itemsStr);
         
-        GameObject otherPlayer = GameObject.Find(username) as GameObject;
+        GameObject otherPlayer = GameObject.Find(username + "_player") as GameObject;
         Debug.Log(username + "GG WP");
 
         otherPlayer.GetComponent<CharacterController>().spritesArray = new Dictionary<string, Sprite[]>();
@@ -674,12 +858,31 @@ public class NetworkManager : MonoBehaviour
         {
             PlayerItemsJSON itemsJson = PlayerItemsJSON.CreateFromJSON(items[i].ToString());
            
-            if (itemsJson.type != "pin" && itemsJson.type != "background")
+            if (itemsJson.type != "badge" && itemsJson.type != "background")
             {
                 //var subSprites = Resources.LoadAll<Sprite>("Animations/" + itemsJson.item_id);
                // otherPlayer.GetComponent<CharacterController>().spritesArray[itemsJson.type] = subSprites;
 
-                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, true, username, otherPlayer, itemsJson.type); 
+                LoadAssetBundles("Items/Animations/", true, itemsJson.item_id, false, false, username, otherPlayer, itemsJson.type); 
+            }
+        }
+        
+        GameObject playerCardOC = GameObject.Find("PlayerCardOC")
+                    .transform.Find("DragPlayerCard").gameObject;
+
+        if (playerCardOC.activeSelf)
+        {
+            if (playerCardOC.transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").transform.Find("PlayerName").GetComponent<Text>().text == username)
+            {
+                Player player_id = GameObject.Find("Player").GetComponent<Player>();
+                if (player_id.user_id.Length > 0)
+                {
+                    string dataUser = JsonUtility.ToJson(new ChangeItemJSON(player_id.user_id, username));
+
+                    socket.Emit("get other player items", dataUser);
+
+                    Debug.Log(player_id.user_id + " | " + username);
+                }
             }
         }
     }
@@ -691,11 +894,7 @@ public class NetworkManager : MonoBehaviour
         Debug.Log(data);
         StringToJSON dialogText = StringToJSON.CreateFromJSON(data);
 
-        GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject.SetActive(true);
-        GameObject itemDialogCanvas = GameObject.Find("Dialog").transform.Find("DialogHolder").transform.Find("Canvas").gameObject;
-        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = dialogText.stringVal;
-
-        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
+        ShowDialog(dialogText.stringVal);
 
         isServerAvailable = true;
     }
@@ -705,7 +904,7 @@ public class NetworkManager : MonoBehaviour
         string data = socketIOEvent.data.ToString();
         UsernameJSON userJSON = UsernameJSON.CreateFromJSON(data);
         Debug.Log(data);
-        Destroy(GameObject.Find(userJSON.playerUsername).gameObject);
+        Destroy(GameObject.Find(userJSON.playerUsername + "_player").gameObject);
     }
 
     void OnPlayersLoaded(SocketIOEvent socketIOEvent)
@@ -756,7 +955,7 @@ public class NetworkManager : MonoBehaviour
 
         FriendStatusJSON friendStatus = FriendStatusJSON.CreateFromJSON(data);
        
-        GameObject player = GameObject.Find(friendStatus.username);
+        GameObject player = GameObject.Find(friendStatus.username + "_player");
         Player playerScript = player.GetComponent<Player>();
         playerScript.isFriend = friendStatus.isFriend;
     }
@@ -787,12 +986,28 @@ public class NetworkManager : MonoBehaviour
         if (isFriendlistActive)
         {
             FriendsController.updateFriendList = true;
-            ShowFriends();
+            ShowFriends(currentFriendsPage);
         }
         else
         {
             FriendsController.updateFriendList = true;
         }
+    }
+
+    void OnGetFriendsCount(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data;
+        IntToJSON friends = IntToJSON.CreateFromJSON(data);
+
+        friendsCount = friends.count;
+    }
+
+    void OnGetRequestsCount(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data;
+        IntToJSON requests = IntToJSON.CreateFromJSON(data);
+
+        requestsCount = requests.count;
     }
 
     void OnUpdateRequests(SocketIOEvent socketIOEvent)
@@ -814,23 +1029,46 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
+    void OnGetPopularity(SocketIOEvent socketIOEvent)
+    {
+        string data = socketIOEvent.data;
+        StringIntToJSON popularityObj = StringIntToJSON.CreateFromJSON(data);
+        int popularity = popularityObj.intVal;
+        Debug.Log(data);
+        ChangePopularityRing(popularityObj.stringVal, popularity);        
+    }
+
     void OnOtherPlayerDisconnected(SocketIOEvent socketIOEvent)
     {
         print("user disconnected");
         string data = socketIOEvent.data.ToString();
         UserJSON userJSON = UserJSON.CreateFromJSON(data);
-        Destroy(GameObject.Find(userJSON.name));
+        Destroy(GameObject.Find(userJSON.name + "_player"));
+    }
+
+    private void OnDisconnect(SocketIOEvent socketIOEvent)
+    {
+        Debug.Log("Disconnected");
+
+        GameObject dialogHolder = GameObject.Find("Dialog").transform.Find("DialogHolder").gameObject;
+
+        dialogHolder.SetActive(true);
+        dialogHolder.GetComponent<DialogController>().refreshPage = true;
+        GameObject itemDialogCanvas = GameObject.Find("Dialog").transform.Find("DialogHolder").transform.Find("Canvas").gameObject;
+        itemDialogCanvas.transform.Find("Text").GetComponent<Text>().text = "Problem with the server";
+
+        itemDialogCanvas.transform.Find("OK").gameObject.SetActive(true);
     }
     #endregion
 
     #region Miscelanieous
 
-    public void LoadAssetBundles(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = true, string username = null, GameObject obj = null, string itemType = null)
+    public void LoadAssetBundles(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = false, string username = null, GameObject obj = null, string itemType = null)
     {
         StartCoroutine(DownloadObject(assetFolder, isSprite, assetBundleName, isPC, downloadFromCache, username, obj, itemType));
     }
 
-    IEnumerator DownloadObject(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = true, string username = null, GameObject obj = null, string itemType = null)
+    IEnumerator DownloadObject(string assetFolder, bool isSprite, string assetBundleName, bool isPC, bool downloadFromCache = false, string username = null, GameObject obj = null, string itemType = null)
     {
         //string path = "file:///D:/UnityProjects/The Game/server/server/public/Assets/" + assetBundleName;
         string path = "http://localhost:3000/Assets/" + assetFolder + assetBundleName;
@@ -858,7 +1096,8 @@ public class NetworkManager : MonoBehaviour
             else
             {
                 bundle = ((DownloadHandlerAssetBundle)www.downloadHandler).assetBundle;
-                Debug.Log("Download from server");
+
+                Debug.Log("Download from server " + assetBundleName);
             }
         }
 
@@ -888,10 +1127,10 @@ public class NetworkManager : MonoBehaviour
                     int i = Convert.ToInt16(itemType);
 
                     float offset0 = i % 3;
-                    float x = itemsHolder.transform.position.x - itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x / 2 + (1 + 1.25f * offset0) * obj.GetComponent<SpriteRenderer>().bounds.size.x;
+                    float x = itemsHolder.transform.position.x - itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x / 2 + (0.75f + 1.075f * offset0) * obj.GetComponent<SpriteRenderer>().bounds.size.x;
 
                     int offset = i / 3 + 1;
-                    float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - obj.GetComponent<SpriteRenderer>().bounds.size.y * offset;
+                    float y = itemsHolder.transform.position.y + itemsHolder.GetComponent<SpriteRenderer>().bounds.size.y / 2 - obj.GetComponent<SpriteRenderer>().bounds.size.y * offset * 1.036f;
                     obj.transform.position = new Vector3(x, y, -3.3f);
                     //obj.GetComponent<SpriteRenderer>().sortingOrder = 201;
                 }
@@ -909,8 +1148,6 @@ public class NetworkManager : MonoBehaviour
                     obj.transform.Find("ItemHolder")
                     .transform.Find(itemType + "Sprite")
                     .GetComponent<SpriteRenderer>().sprite = spriteSheet[numAnimation];
-
-                    Debug.Log(spriteSheet[numAnimation]);
                 //}
             }
 
@@ -924,10 +1161,13 @@ public class NetworkManager : MonoBehaviour
             Debug.Log("load 2");
             //yield return request;
 
+            Debug.Log(request);
+            Debug.Log(assetBundleName);
             GameObject cat = request.asset as GameObject;
       
             GameObject objInstatiate = Instantiate<GameObject>(cat);
             objInstatiate.name = cat.name;
+
             bundle.Unload(false);
             yield return request;
         }
@@ -1008,6 +1248,28 @@ public class NetworkManager : MonoBehaviour
         public static ChatJSON CreateFromJSON(string data)
         {
             return JsonUtility.FromJson<ChatJSON>(data);
+        }
+    }
+
+    [Serializable]
+    public class MovementJSON
+    {
+        public string player;
+        public string movement;
+        public float x;
+        public float y;
+
+        public MovementJSON(string _player, string _movement, float _x, float _y)
+        {
+            player = _player;
+            movement = _movement;
+            x = _x;
+            y = _y;
+        }
+
+        public static MovementJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<MovementJSON>(data);
         }
     }
 
@@ -1107,6 +1369,9 @@ public class NetworkManager : MonoBehaviour
         public int numAnimation;
         public int fish;
         public string server;
+        public string movement;
+        public int popularity;
+        public bool isWalking;
 
         public static UserJSON CreateFromJSON(string data)
         {
@@ -1172,6 +1437,22 @@ public class NetworkManager : MonoBehaviour
     }
 
     [Serializable]
+    public class Vec2ToJSON
+    {
+        public Vector2 vec2;
+
+        public Vec2ToJSON(Vector2 _vec)
+        {
+            vec2 = _vec;
+        }
+
+        public static Vec2ToJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<Vec2ToJSON>(data);
+        }
+    }
+
+    [Serializable]
     public class StringIntToJSON
     {
         public int intVal;
@@ -1181,6 +1462,11 @@ public class NetworkManager : MonoBehaviour
         {
             intVal = _intVal;
             stringVal = _stringVal;
+        }
+
+        public static StringIntToJSON CreateFromJSON(string data)
+        {
+            return JsonUtility.FromJson<StringIntToJSON>(data);
         }
     }
 
@@ -1217,6 +1503,19 @@ public class NetworkManager : MonoBehaviour
         {
             requestId = _requestId;
             acceptRequest = _acceptRequest;
+        }
+    }
+
+    [Serializable]
+    public class StringBoolJSON
+    {
+        public string stringVal;
+        public bool boolVal;
+
+        public StringBoolJSON(string _stringVal, bool _boolVal)
+        {
+            stringVal = _stringVal;
+            boolVal = _boolVal;
         }
     }
     #endregion

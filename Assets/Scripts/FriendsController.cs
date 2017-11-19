@@ -14,7 +14,7 @@ public class FriendsController : MonoBehaviour {
     private bool instantiateFriends;
     private bool instantiateRequests;
     
-    private string statusSpritePath;
+    private int statusSpritePath;
     public static string requestId;
     public static int requestOrder;
 
@@ -60,34 +60,37 @@ public class FriendsController : MonoBehaviour {
 
                 float friendObjY = friendObj.transform.position.y - 0.4f * i;
                 ///////////SELSKO NAMESTVANE/////////////
-                friendObj.transform.position = new Vector3(friendObj.transform.position.x, friendObjY, friendObj.transform.position.y);
+                friendObj.transform.position = new Vector3(friendObj.transform.position.x, friendObjY, friendObj.transform.position.z);
                 /////////////////////////////////////////
                 /////Player.instance.GetComponent<Player>().showOCPlayerCard("kon");
                 FriendJSON friend = FriendJSON.CreateFromJSON(friends[i]);
 
                 if (friend.is_logged && friend.server == NetworkManager.serverName)
                 {
-                    statusSpritePath = "Sprites/Boxes/online";
+                    statusSpritePath = 7;
                 }
                 else
                 {
-                    statusSpritePath = "Sprites/Boxes/offline";
+                    statusSpritePath = 6;
                 }
 
                 friendObj.GetComponent<ShowFriendPC>().username = friend.username;
                 friendObj.GetComponent<ShowFriendPC>().id = friend.id;
-                friendObj.transform.Find("Status").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(statusSpritePath);
+                friendObj.transform.Find("Status").GetComponent<SpriteRenderer>().sprite = Resources.LoadAll<Sprite>("Sprites/Menu/friend_list")[statusSpritePath];
                 friendObj.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = friend.username;
             }
 
             Debug.Log("Friends instantiated");
             instantiateFriends = false;
             updateFriendList = false;
+
+            NetworkManager.instance.GetComponent<NetworkManager>().GetFriendsCount();
         }
         else
         {
             if (updateFriendList)
             {
+                NetworkManager.instance.GetComponent<NetworkManager>().GetFriendsCount();
                 Debug.Log("UPDATE FRIENDS");
                 int currentFriendsCount = friends.Length;
                 int instantiatedFriendsCount = FriendsHolder.childCount;
@@ -103,7 +106,7 @@ public class FriendsController : MonoBehaviour {
 
                         float friendObjY = friendObj.transform.position.y - 0.4f * (instantiatedFriendsCount + i);
                         ///////////SELSKO NAMESTVANE/////////////
-                        friendObj.transform.position = new Vector3(friendObj.transform.position.x, friendObjY, friendObj.transform.position.y);
+                        friendObj.transform.position = new Vector3(friendObj.transform.position.x, friendObjY, friendObj.transform.position.z);
                         /////////////////////////////////////////
 
                         newFriendNumber = instantiatedFriendsCount + i;
@@ -135,16 +138,16 @@ public class FriendsController : MonoBehaviour {
 
                         if (friend.is_logged && friend.server == NetworkManager.serverName)
                         {
-                            statusSpritePath = "Sprites/Boxes/online";
+                            statusSpritePath = 7;
                         }
                         else
                         {
-                            statusSpritePath = "Sprites/Boxes/offline";
+                            statusSpritePath = 6;
                         }
 
                         child.GetComponent<ShowFriendPC>().username = friend.username;
                         child.GetComponent<ShowFriendPC>().id = friend.id;
-                        child.transform.Find("Status").GetComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>(statusSpritePath);
+                        child.transform.Find("Status").GetComponent<SpriteRenderer>().sprite = Resources.LoadAll<Sprite>("Sprites/Menu/friend_list")[statusSpritePath];
                         child.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = friend.username;
 
                         friendCounter++;
@@ -157,8 +160,64 @@ public class FriendsController : MonoBehaviour {
         }
     }
 
+    public void PrevPage(bool isRequests = false)
+    {
+
+        if (NetworkManager.currentFriendsPage > 1)
+        {
+
+            if (!isRequests)
+            {
+                updateFriendList = true;
+                NetworkManager.instance.GetComponent<NetworkManager>().ShowFriends(NetworkManager.currentFriendsPage - 1);
+            }
+            else
+            {
+                updateFriendRequests = true;
+                NetworkManager.instance.GetComponent<NetworkManager>().ShowRequests(NetworkManager.currentFriendsPage - 1);
+            }
+
+            NetworkManager.currentFriendsPage--;
+        }
+    }
+
+    public void NextPage(bool isRequests = false)
+    {
+        int maxPage = Mathf.CeilToInt((float)NetworkManager.friendsCount / 10);
+        if (isRequests)
+        {
+            maxPage = Mathf.CeilToInt(((float)NetworkManager.requestsCount / 10));
+        }
+        
+        if(maxPage < 1)
+        {
+            maxPage = 1;
+        }
+
+        Debug.Log(maxPage);
+        Debug.Log(NetworkManager.requestsCount);
+        if (NetworkManager.currentFriendsPage < maxPage)
+        {
+            if(!isRequests)
+            {
+                updateFriendList = true;
+                NetworkManager.instance.GetComponent<NetworkManager>().ShowFriends(NetworkManager.currentFriendsPage + 1);
+            }
+            else
+            {
+                updateFriendRequests = true;
+                NetworkManager.instance.GetComponent<NetworkManager>().ShowRequests(NetworkManager.currentFriendsPage + 1);
+            }
+            
+            NetworkManager.currentFriendsPage++;
+        }
+
+    }
+
     public void ShowRequests(string[] requests)
     {
+        Debug.Log("update frreq " + updateFriendRequests);
+
         Transform RequestsHolder = this.transform.Find("Holder").transform.Find("FriendRequestHolder").transform.Find("RequestsHolder");
         if (instantiateRequests)
         {
@@ -185,11 +244,15 @@ public class FriendsController : MonoBehaviour {
             Debug.Log("Requests instantiated");
             instantiateRequests = false;
             updateFriendRequests = false;
+
+            NetworkManager.instance.GetComponent<NetworkManager>().GetRequestsCount();
         }
         else
         {
             if (updateFriendRequests)
             {
+                NetworkManager.instance.GetComponent<NetworkManager>().GetRequestsCount();
+
                 Debug.Log("UPDATE REQUESTS");
                 int currentRequestsCount = requests.Length;
                 int instantiatedRequestsCount = RequestsHolder.childCount;
@@ -218,20 +281,26 @@ public class FriendsController : MonoBehaviour {
                     for (int i = instantiatedRequestsCount; i > currentRequestsCount; i--)
                     {
                         requestNumber = i - 1;
-                        Destroy(RequestsHolder.transform.Find("Request " + requestNumber));
+                        Destroy(RequestsHolder.transform.Find("Request " + requestNumber).gameObject);
                     }
                 }
 
                 int requestCounter = 0;
                 foreach (Transform child in RequestsHolder)
                 {
-                    RequestJSON request = RequestJSON.CreateFromJSON(requests[requestCounter]);
+                    if (requestCounter < requests.Length)
+                    {
+                        RequestJSON request = RequestJSON.CreateFromJSON(requests[requestCounter]);
+                        Debug.Log("name " + request.sender_username);
+                        Debug.Log(requestCounter);
+                        Debug.Log(RequestsHolder.childCount);
 
-                    child.GetComponent<ShowRequest>().request_id = request._id;
-                    child.GetComponent<ShowRequest>().requestOrder = requestCounter;
-                    child.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = request.sender_username;
+                        child.GetComponent<ShowRequest>().request_id = request._id;
+                        child.GetComponent<ShowRequest>().requestOrder = requestCounter;
+                        child.transform.Find("Canvas").transform.Find("Text").GetComponent<Text>().text = request.sender_username;
 
-                    requestCounter++;
+                        requestCounter++;
+                    }
                 }
 
                 updateFriendRequests = false;
@@ -241,11 +310,28 @@ public class FriendsController : MonoBehaviour {
 
     public void AcceptRequest()
     {
+        Debug.Log("ADD FRIEND");
+        updateFriendRequests = true;
         NetworkManager.instance.GetComponent<NetworkManager>().HandleRequest(requestId, true);
         
-        this.transform.Find("Holder").transform.Find("FriendRequestHolder").transform.Find("RequestDialogBox").gameObject.SetActive(false);
+        GameObject.Find("RequestDialogHolder").transform.Find("RequestDialogBox").gameObject.SetActive(false);
+        NetworkManager.instance.GetComponent<NetworkManager>().ShowRequests(NetworkManager.currentFriendsPage);
+        //RearrangeRequests();
+        //TODO: add friend
+        //TODO: update friend list
+    }
 
-        RearrangeRequests();
+    public void DeclineRequest()
+    {
+        Debug.Log("Decline FRIEND Request");
+        updateFriendRequests = true;
+        NetworkManager.instance.GetComponent<NetworkManager>().HandleRequest(requestId, false);
+
+        GameObject.Find("RequestDialogHolder").transform.Find("RequestDialogBox").gameObject.SetActive(false);
+
+        
+        Debug.Log(requestId);
+        NetworkManager.instance.GetComponent<NetworkManager>().ShowRequests(NetworkManager.currentFriendsPage);
         //TODO: add friend
         //TODO: update friend list
     }

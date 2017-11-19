@@ -12,7 +12,7 @@ public class ShowItems : MonoBehaviour
         if(!itemsHolder.activeSelf)
         {
             itemsHolder.SetActive(true);
-            GameObject canvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").gameObject;
+            GameObject canvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("SortCanvas").gameObject;
             canvas.transform.Find("SortHolder").gameObject.SetActive(true);
 
             var x = itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x;
@@ -22,7 +22,7 @@ public class ShowItems : MonoBehaviour
         }
         else
         {
-            GameObject canvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").gameObject;
+            GameObject canvas = GameObject.Find("PlayerCard").transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("SortCanvas").gameObject;
             canvas.transform.Find("SortHolder").gameObject.SetActive(false);
 
 

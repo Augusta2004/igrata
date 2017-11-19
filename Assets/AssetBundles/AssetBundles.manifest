@@ -1,7 +1,16 @@
 ManifestFileVersion: 0
-CRC: 2914176240
+CRC: 4123066852
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: room2
+      Name: tempitems
+      Dependencies: {}
+    Info_1:
+      Name: tempitemscontainer
+      Dependencies: {}
+    Info_2:
+      Name: 5a0c9b4618ff27e179537dab
+      Dependencies: {}
+    Info_3:
+      Name: 5a0c9b4618ff27e179537dab_pc
       Dependencies: {}

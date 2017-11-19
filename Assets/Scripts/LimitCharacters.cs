@@ -9,6 +9,6 @@ public class LimitCharacters : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        input.characterLimit = 55;
+        input.characterLimit = 36;
 	}
 }

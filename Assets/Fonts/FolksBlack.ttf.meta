@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 13e363582f3e6874a8be1ce86c4db751
+timeCreated: 1507989460
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: FolksBlack
+  fontNames:
+  - FolksBlack
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

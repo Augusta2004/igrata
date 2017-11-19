@@ -8,10 +8,10 @@ public class ClosePlayerCard : MonoBehaviour {
     {
         //this.transform.parent.gameObject.SetActive(false);
         GameObject playerCard = GameObject.Find("PlayerCard") as GameObject;
-        playerCard.transform.Find("DragPlayerCard").transform.position = new Vector3(0, 3.49f, -0.6f);
+        playerCard.transform.Find("DragPlayerCard").transform.position = new Vector3(-1.09f, 3.29f, -1.2f);
         playerCard.transform.GetChild(0).gameObject.SetActive(false);
 
-        GameObject itemsHolder = playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
+        /*GameObject itemsHolder = playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ItemsHolder").gameObject;
         GameObject showItems = playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("ShowItems").gameObject;
 
         var x = itemsHolder.GetComponent<SpriteRenderer>().bounds.size.x;
@@ -21,12 +21,12 @@ public class ClosePlayerCard : MonoBehaviour {
         }
         itemsHolder.SetActive(false);
 
-        playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("PlayerCardCanvas").transform.Find("SortHolder").gameObject.SetActive(false);
-
+        playerCard.transform.Find("DragPlayerCard").transform.Find("PlayerCardHolder").transform.Find("SortCanvas").transform.Find("SortHolder").gameObject.SetActive(false);
+        */
 
 
         GameObject playerCardOC = GameObject.Find("PlayerCardOC") as GameObject;
-        playerCardOC.transform.Find("DragPlayerCard").transform.position = new Vector3(0, 3.49f, -0.6f);
+        playerCardOC.transform.Find("DragPlayerCard").transform.position = new Vector3(-1.09f, 3.29f, -1.2f);
         playerCardOC.transform.GetChild(0).gameObject.SetActive(false);
     }
 }

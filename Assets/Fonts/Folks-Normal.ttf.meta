@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 14ffbf2c246d1c74aaaf9bbb76fca449
+timeCreated: 1507989460
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Folks
+  fontNames:
+  - Folks
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

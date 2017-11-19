@@ -5,20 +5,22 @@ using UnityEngine;
 public class CursorChange : MonoBehaviour {
 
     Texture2D cursor;
+    Texture2D handCursor;
 
     void Start()
     {
-        cursor = (Texture2D)Resources.Load("Sprites/Cursors/Hand");
+        handCursor = (Texture2D)Resources.Load("Sprites/Cursors/Hand");
+        cursor = (Texture2D)Resources.Load("Sprites/Cursors/Arrow");
     }
 
     void OnMouseOver()
     {
         //Debug.Log("change cursor");
-        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.ForceSoftware);
+        Cursor.SetCursor(handCursor, Vector2.zero, CursorMode.Auto);
     }
 
     void OnMouseExit()
     {
-        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
+        Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
     }
 }

@@ -19,6 +19,7 @@ public class DialogController : MonoBehaviour {
     public void ConfirmBuy()
     {
         NetworkManager.instance.GetComponent<NetworkManager>().BuyItem(item_id);
+        //Debug.Log(item_id);
         this.gameObject.SetActive(false);
     }
 

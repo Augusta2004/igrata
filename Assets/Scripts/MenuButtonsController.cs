@@ -42,6 +42,7 @@ public class MenuButtonsController : MonoBehaviour {
         }
         else if (this.name == "Friends")
         {
+            //NetworkManager.currentFriendsPage = 1;
             Debug.Log("friends");
             if (friends.activeSelf)
             {
@@ -55,7 +56,7 @@ public class MenuButtonsController : MonoBehaviour {
 
                 if (FriendsController.updateFriendList)
                 {
-                    NetworkManager.instance.GetComponent<NetworkManager>().ShowFriends();
+                    NetworkManager.instance.GetComponent<NetworkManager>().ShowFriends(1);
                 }
                 else
                 {

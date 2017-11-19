@@ -244,7 +244,6 @@ namespace UnitySocketIO.SocketIO {
 
         void OnSocketError(object sender, ErrorEventArgs e) {
             Debug.Log(e.Message);
-            NetworkManager.instance.GetComponent<NetworkManager>().ServerError();
         }
 
         void OnSocketClose(object sender, CloseEventArgs e) {

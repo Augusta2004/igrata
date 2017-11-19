@@ -19,9 +19,9 @@ public class Item : MonoBehaviour
     {
         if (!isTriggered
             && this.gameObject.CompareTag("Walk")
-            && other.gameObject.CompareTag("Player"))
+            && other.gameObject.CompareTag("Player") && other.GetType() == typeof(PolygonCollider2D))
         {
-            if (other.gameObject.name == NetworkManager.localUsername)
+            if (other.gameObject.name == NetworkManager.localUsername + "_player")
             {
                 Debug.Log("Collide without click");
 

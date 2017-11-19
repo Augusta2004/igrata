@@ -8,24 +8,24 @@ public class DragPlayerCard : MonoBehaviour {
     {
         Vector2 pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
-        if(pos.x > 4.4)
+        if(pos.x > 6.157f)
         {
-            pos.x = 4.4f;
+            pos.x = 6.157f;
         }
-        if (pos.x < -5)
+        if (pos.x < -6.17)
         {
-            pos.x = -5f;
+            pos.x = -6.17f;
         }
-        if (pos.y > 4.1)
+        if (pos.y > 4.296)
         {
-            pos.y = 4.1f;
+            pos.y = 4.296f;
         }
-        if (pos.y < 1)
+        if (pos.y < 1.367f)
         {
-            pos.y = 1f;
+            pos.y = 1.367f;
         }
 
 
-        transform.position = (pos);
+        transform.position = new Vector3 (pos.x, pos.y, -1.2f);
     }
 }

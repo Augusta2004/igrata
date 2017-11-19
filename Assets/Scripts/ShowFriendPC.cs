@@ -9,7 +9,8 @@ public class ShowFriendPC : MonoBehaviour {
 
     private void OnMouseDown()
     {
-        Player.instance.GetComponent<Player>().ShowOCPlayerCard(username, true, id);
+        Debug.Log("Show friend PC");
+        Player.instance.GetComponent<Player>().ShowOCPlayerCard(username + "_player", true, id);
 
         Debug.Log(Player.instance.GetComponent<Player>().name);
     }

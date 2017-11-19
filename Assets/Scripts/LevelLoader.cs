@@ -50,15 +50,20 @@ public class LevelLoader : MonoBehaviour {
             NetworkManager.instance.GetComponent<NetworkManager>().ConnectToServer();
            
             int count = 0;
-            while (!NetworkManager.playerLoaded || !NetworkManager.otherPlayersLoaded)
+            while ((!NetworkManager.playerLoaded || !NetworkManager.otherPlayersLoaded) || !NetworkManager.tempItemsLoaded)
             {
                 yield return new WaitForSeconds(0.1f);
                 progressText.text = "Loading... bears";
              
                 count++;
+
+                //Debug.Log(NetworkManager.tempItemsLoaded);
             }
+            Debug.Log(NetworkManager.tempItemsLoaded);
         }
-        
+
+        NetworkManager.tempItemsLoaded = false;
+        Debug.Log("LOADED");
         GameObject.Find("Canvas").SetActive(false);
         //yield return new WaitForSeconds(5f);
         operation.allowSceneActivation = true;

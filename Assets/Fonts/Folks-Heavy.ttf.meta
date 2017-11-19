@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 685376ce8c6ad8544ace69b93a66f6dd
+timeCreated: 1507989461
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Folks-Heavy
+  fontNames:
+  - Folks-Heavy
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
